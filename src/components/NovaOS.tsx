@@ -392,16 +392,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         const telefoneValueWidth = pdf.getTextWidth(telefoneValue);
         const telefoneLineWidth = Math.max(telefoneValueWidth + 2, 30);
         
-        // Posicionar telefone mais à esquerda para melhor alinhamento
-        const telefoneX = pageWidth * 0.55; // Aproximadamente 55% da largura da página
+        // Manter telefone alinhado com Data de Entrega
+        const telefoneX = dataEntregaX;
         
         pdf.text(telefoneLabel, telefoneX, currentY);
         
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // Mesmo espaçamento dos outros campos
+        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth - 8, currentY); // Reduzir espaço entre título e valor
         // Linha apenas no valor
-        pdf.line(telefoneX + telefoneLabelWidth + 2, currentY + 1, telefoneX + telefoneLabelWidth + 2 + telefoneLineWidth, currentY + 1);
+        pdf.line(telefoneX + telefoneLabelWidth - 8, currentY + 1, telefoneX + telefoneLabelWidth - 8 + telefoneLineWidth, currentY + 1);
         
         currentY += 8; // Espaço após nome/telefone (bloco 3)
         
