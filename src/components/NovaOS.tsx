@@ -430,12 +430,12 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
             fontStyle: 'bold'
           },
           columnStyles: {
-            0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 12 },
-            1: { cellWidth: 22 },
-            2: { cellWidth: 22 },
-            3: { cellWidth: 18 },
-            4: { cellWidth: 18 },
-            5: { cellWidth: 18 }
+            0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 16 },
+            1: { cellWidth: 28 },
+            2: { cellWidth: 28 },
+            3: { cellWidth: 24 },
+            4: { cellWidth: 24 },
+            5: { cellWidth: 24 }
           },
           tableWidth: pageWidth - 2 * margin,
           margin: { left: margin, right: margin }
