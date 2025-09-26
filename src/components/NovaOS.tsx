@@ -1268,3 +1268,4 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     </div>
   );
 }
+}
