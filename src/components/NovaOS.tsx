@@ -72,51 +72,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [dateError, setDateError] = useState<string>('');
-
-  // Função para formatar telefone
-  const formatPhoneNumber = (value: string): string => {
-    // Remove todos os caracteres não numéricos
-    const numbers = value.replace(/\D/g, '');
-    
-    // Limita a 11 dígitos
-    const limitedNumbers = numbers.slice(0, 11);
-    
-    // Aplica a formatação baseada no comprimento
-    if (limitedNumbers.length <= 2) {
-      return `(${limitedNumbers}`;
-    } else if (limitedNumbers.length <= 3) {
-      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`;
-    } else if (limitedNumbers.length <= 7) {
-      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 3)} ${limitedNumbers.slice(3)}`;
-    } else {
-      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 3)} ${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
-    }
-  };
-
-  // Função para formatar CPF
-  const formatCPF = (value: string): string => {
-    // Remove todos os caracteres não numéricos
-    const numbers = value.replace(/\D/g, '');
-    
-    // Limita a 11 dígitos
-    const limitedNumbers = numbers.slice(0, 11);
-    
-    // Aplica a formatação baseada no comprimento
-    if (limitedNumbers.length <= 3) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 6) {
-      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3)}`;
-    } else if (limitedNumbers.length <= 9) {
-      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3, 6)}.${limitedNumbers.slice(6)}`;
-    } else {
-      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3, 6)}.${limitedNumbers.slice(6, 9)}-${limitedNumbers.slice(9)}`;
-    }
-  };
-
-  // Função para extrair apenas números
-  const extractNumbers = (value: string): string => {
-    return value.replace(/\D/g, '');
-  };
+  const [phoneError, setPhoneError] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     fetchNextNumOS();
@@ -144,24 +101,66 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    let processedValue = value;
-    
-    // Aplicar formatação específica para telefone e CPF
     if (field === 'telefone_cliente') {
-      processedValue = formatPhoneNumber(value);
-    } else if (field === 'cpf') {
-      processedValue = formatCPF(value);
+      // Formatação automática do telefone
+      const formatted = formatPhoneInput(value);
+      setFormData(prev => ({
+        ...prev,
+        [field]: formatted
+      }));
+      
+      // Validação do telefone
+      validatePhone(formatted);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
     }
-    
-    setFormData(prev => ({
-      ...prev,
-      [field]: processedValue
-      const phoneNumbers = extractNumbers(formData.telefone_cliente);
 
     // Validar datas quando uma delas for alterada
     if (field === 'data_venda' || field === 'data_entrega') {
       validateDates(field === 'data_venda' ? value : formData.data_venda, 
                    field === 'data_entrega' ? value : formData.data_entrega);
+    }
+    
+    // Atualizar lista de erros
+    updateValidationErrors();
+  };
+
+  // Função para formatar telefone durante a digitação
+  const formatPhoneInput = (value: string): string => {
+    // Remove todos os caracteres não numéricos
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // Aplica formatação baseada no número de dígitos
+    if (limitedNumbers.length <= 2) {
+      return `(${limitedNumbers}`;
+    } else if (limitedNumbers.length <= 3) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`;
+    } else if (limitedNumbers.length <= 7) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 3)} ${limitedNumbers.slice(3)}`;
+    } else {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 3)} ${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+    }
+  };
+
+  // Função para extrair apenas os números do telefone
+  const extractPhoneNumbers = (formattedPhone: string): string => {
+    return formattedPhone.replace(/\D/g, '');
+  };
+
+  // Validação do telefone
+  const validatePhone = (phone: string) => {
+    const numbers = extractPhoneNumbers(phone);
+    
+    if (numbers.length > 0 && numbers.length !== 11) {
+      setPhoneError('O telefone deve ter exatamente 11 dígitos');
+    } else {
+      setPhoneError('');
     }
   };
 
@@ -179,6 +178,26 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       setDateError('');
     }
   };
+
+  // Função para atualizar lista de erros de validação
+  const updateValidationErrors = () => {
+    const errors: string[] = [];
+    
+    if (dateError) {
+      errors.push(dateError);
+    }
+    
+    if (phoneError) {
+      errors.push(phoneError);
+    }
+    
+    setValidationErrors(errors);
+  };
+
+  // Atualizar erros quando dateError ou phoneError mudarem
+  React.useEffect(() => {
+    updateValidationErrors();
+  }, [dateError, phoneError]);
 
   const handleNumOSChange = (value: string) => {
     const numValue = parseInt(value) || 1;
@@ -205,26 +224,52 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   };
 
   const handleSave = async () => {
-    if (!formData.cliente_nome.trim() || !formData.telefone_cliente.trim() || !formData.tipo_lente) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
-      return;
+    // Validar campos obrigatórios
+    const errors: string[] = [];
+    
+    if (!formData.cliente_nome.trim()) {
+      errors.push('Nome do cliente é obrigatório');
     }
-
-    // Validar datas antes de salvar
+    
+    if (!formData.telefone_cliente.trim()) {
+      errors.push('Telefone é obrigatório');
+    } else {
+      const phoneNumbers = extractPhoneNumbers(formData.telefone_cliente);
+      if (phoneNumbers.length !== 11) {
+        errors.push('Telefone deve ter exatamente 11 dígitos');
+      }
+    }
+    
+    if (!formData.tipo_lente) {
+      errors.push('Tipo de lente é obrigatório');
+    }
+    
+    // Adicionar erros de validação existentes
     if (dateError) {
-      alert('Por favor, corrija os erros de data antes de salvar.');
+      errors.push(dateError);
+    }
+    
+    if (phoneError) {
+      errors.push(phoneError);
+    }
+    
+    if (errors.length > 0) {
+      alert('Por favor, corrija os seguintes erros:\n\n• ' + errors.join('\n• '));
       return;
     }
 
     setIsSaving(true);
 
     try {
+      // Extrair apenas os números do telefone para salvar no banco
+      const phoneNumbers = extractPhoneNumbers(formData.telefone_cliente);
+      
       const orderData = {
         tenant_id: tenant.id,
         num_os: nextNumOS,
         cliente_nome: formData.cliente_nome,
-        telefone_cliente: extractNumbers(formData.telefone_cliente), // Salvar apenas números
-        cpf: formData.cpf ? extractNumbers(formData.cpf) : null, // Salvar apenas números
+        telefone_cliente: phoneNumbers, // Salvar apenas os números
+        cpf: formData.cpf || null,
         endereco: formData.endereco || null,
         data_nascimento: formData.data_nascimento || null,
         data_venda: formData.data_venda || null,
@@ -841,6 +886,30 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 </div>
               </div>
             )}
+            
+            {/* Alerta geral de erros de validação */}
+            {validationErrors.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-red-800 mb-2">Corrija os seguintes erros:</h4>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      {validationErrors.map((error, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          <span className="w-1 h-1 bg-red-400 rounded-full"></span>
+                          <span>{error}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Dados do Cliente */}
@@ -864,9 +933,19 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   type="tel"
                   value={formData.telefone_cliente}
                   onChange={(e) => handleInputChange('telefone_cliente', e.target.value)}
-                  placeholder="(11) 99999-9999"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+                  placeholder="(11) 9 9999-9999"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                    phoneError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
                 />
+                {phoneError && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
+                    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>{phoneError}</span>
+                  </p>
+                )}
               </div>
             </div>
 
