@@ -71,6 +71,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   const [nextNumOS, setNextNumOS] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [dateError, setDateError] = useState<string>('');
 
   useEffect(() => {
     fetchNextNumOS();
@@ -102,6 +103,27 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       ...prev,
       [field]: value
     }));
+
+    // Validar datas quando uma delas for alterada
+    if (field === 'data_venda' || field === 'data_entrega') {
+      validateDates(field === 'data_venda' ? value : formData.data_venda, 
+                   field === 'data_entrega' ? value : formData.data_entrega);
+    }
+  };
+
+  const validateDates = (dataVenda: string, dataEntrega: string) => {
+    if (dataVenda && dataEntrega) {
+      const venda = new Date(dataVenda);
+      const entrega = new Date(dataEntrega);
+      
+      if (entrega < venda) {
+        setDateError('A data de entrega não pode ser anterior à data de venda');
+      } else {
+        setDateError('');
+      }
+    } else {
+      setDateError('');
+    }
   };
 
   const handleNumOSChange = (value: string) => {
@@ -131,6 +153,12 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   const handleSave = async () => {
     if (!formData.cliente_nome.trim() || !formData.telefone_cliente.trim() || !formData.tipo_lente) {
       alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    // Validar datas antes de salvar
+    if (dateError) {
+      alert('Por favor, corrija os erros de data antes de salvar.');
       return;
     }
 
@@ -728,7 +756,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   type="date"
                   value={formData.data_venda}
                   onChange={(e) => handleInputChange('data_venda', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+                    dateError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
                 />
               </div>
               <div>
@@ -737,10 +767,26 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   type="date"
                   value={formData.data_entrega}
                   onChange={(e) => handleInputChange('data_entrega', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+                    dateError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
                 />
               </div>
             </div>
+            
+            {/* Alerta de erro de data */}
+            {dateError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-5 h-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="text-sm text-red-700 font-medium">
+                  {dateError}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Dados do Cliente */}
