@@ -266,16 +266,18 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.text(enderecoTruncated, infoX, currentY + 6);
       pdf.text('Tel: (81) 98898-4547', infoX, currentY + 9);
       
-      // N° OS (alinhado com o nome da ótica)
+      // N° OS com título alinhado com o nome da ótica
       const osBoxWidth = 20;
       const osBoxHeight = 12;
       const osBoxX = pageWidth - margin - osBoxWidth;
-      const osBoxY = currentY + logoSize - osBoxHeight; // Alinhar base com a logo
+      const osBoxY = currentY + 6; // Posicionar abaixo do título
 
+      // Título "N° OS" alinhado com o nome da ótica
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('N° OS', osBoxX + osBoxWidth/2, currentY + 3, { align: 'center' }); // Alinhar com nome da ótica
+      pdf.text('N° OS', osBoxX + osBoxWidth/2, currentY + 3, { align: 'center' });
       
+      // Caixa do número da OS
       pdf.setDrawColor(209, 213, 219);
       pdf.setFillColor(249, 250, 251);
       pdf.rect(osBoxX, osBoxY, osBoxWidth, osBoxHeight, 'FD');
@@ -283,10 +285,10 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(17, 24, 39);
-      pdf.text(nextNumOS.toString(), osBoxX + osBoxWidth/2, osBoxY + 8, { align: 'center' });
+      pdf.text(nextNumOS.toString(), osBoxX + osBoxWidth/2, osBoxY + 7.5, { align: 'center' });
       pdf.setTextColor(0, 0, 0);
       
-      currentY += 18; // Espaço reduzido após logo/N° OS
+      currentY += 22; // Espaço após logo/N° OS
       
       // Função para formatar data no padrão brasileiro
       const formatDate = (dateString: string): string => {
@@ -314,7 +316,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         return phone; // Retorna original se não conseguir formatar
       };
 
-      // Datas na mesma linha com underline apenas nos valores
+      // Datas na mesma linha com underline apenas nos valores (movidas ligeiramente para baixo)
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       
@@ -327,11 +329,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       // Valor da data com fonte maior
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(dataVendaValue, margin + labelWidth, currentY);
+      pdf.text(dataVendaValue, margin + labelWidth + 2, currentY); // +2mm de espaço padronizado
       const valueWidth = pdf.getTextWidth(dataVendaValue);
       // Linha apenas no valor
-      const dataVendaLineWidth = Math.max(valueWidth + 2, 25); // +2mm de margem
-      pdf.line(margin + labelWidth, currentY + 1, margin + labelWidth + dataVendaLineWidth, currentY + 1);
+      const dataVendaLineWidth = Math.max(valueWidth + 2, 25);
+      pdf.line(margin + labelWidth + 2, currentY + 1, margin + labelWidth + 2 + dataVendaLineWidth, currentY + 1);
       
       // Data de Entrega (lado direito)
       pdf.setFontSize(10);
@@ -343,8 +345,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       const dataEntregaValueWidth = pdf.getTextWidth(dataEntregaValue);
-      const dataEntregaLineWidth = Math.max(dataEntregaValueWidth + 2, 25); // +2mm de margem
-      const totalEntregaWidth = dataEntregaLabelWidth + dataEntregaLineWidth;
+      const dataEntregaLineWidth = Math.max(dataEntregaValueWidth + 2, 25);
+      const totalEntregaWidth = dataEntregaLabelWidth + 2 + dataEntregaLineWidth; // +2mm de espaço padronizado
       const dataEntregaX = pageWidth - margin - totalEntregaWidth;
       
       pdf.setFontSize(10);
@@ -353,14 +355,14 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth, currentY);
+      pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY); // +2mm de espaço padronizado
       // Linha apenas no valor
-      pdf.line(dataEntregaX + dataEntregaLabelWidth, currentY + 1, dataEntregaX + dataEntregaLabelWidth + dataEntregaLineWidth, currentY + 1);
+      pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 1, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 1);
       
-      currentY += 10; // Espaço reduzido após datas
+      currentY += 12; // Espaço após datas
       
       if (type === 'laboratorio') {
-        // Nome e Telefone na mesma linha com underline apenas nos valores
+        // Nome e Telefone na mesma linha com espaçamento padronizado
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         
@@ -374,13 +376,13 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         // Valor do nome com fonte maior
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY); // +2mm de espaço
+        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY); // Espaço padronizado como no campo Nome
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeAreaWidth = (pageWidth - 2 * margin) * 0.60; // 60% da largura para dar mais espaço ao telefone
+        const nomeAreaWidth = (pageWidth - 2 * margin) * 0.60;
         // Linha apenas no valor
         pdf.line(margin + nomeLabelWidth + 2, currentY + 1, margin + nomeLabelWidth + 2 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 2), currentY + 1);
         
-        // Telefone (alinhado com Data de Entrega)
+        // Telefone com espaçamento padronizado
         const telefoneLabel = 'Telefone: ';
         const telefoneValue = formatPhone(formData.telefone_cliente) || '';
         const telefoneLabelWidth = pdf.getTextWidth(telefoneLabel);
@@ -388,16 +390,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         const telefoneValueWidth = pdf.getTextWidth(telefoneValue);
-        const totalTelefoneWidth = telefoneLabelWidth + 2 + Math.max(telefoneValueWidth, 30); // +2mm de espaço
+        const totalTelefoneWidth = telefoneLabelWidth + 2 + Math.max(telefoneValueWidth, 30); // Espaço padronizado
         
-        // Alinhar telefone com a posição da Data de Entrega
+        // Posicionar telefone no lado direito
         const telefoneX = dataEntregaX;
         
         pdf.text(telefoneLabel, telefoneX, currentY);
         
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // +2mm de espaço
+        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // Espaço padronizado
         // Linha apenas no valor
         pdf.line(telefoneX + telefoneLabelWidth + 2, currentY + 1, telefoneX + telefoneLabelWidth + 2 + Math.max(telefoneValueWidth, 30), currentY + 1);
         
