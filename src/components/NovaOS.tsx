@@ -73,6 +73,51 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [dateError, setDateError] = useState<string>('');
 
+  // Função para formatar telefone
+  const formatPhoneNumber = (value: string): string => {
+    // Remove todos os caracteres não numéricos
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // Aplica a formatação baseada no comprimento
+    if (limitedNumbers.length <= 2) {
+      return `(${limitedNumbers}`;
+    } else if (limitedNumbers.length <= 3) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`;
+    } else if (limitedNumbers.length <= 7) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 3)} ${limitedNumbers.slice(3)}`;
+    } else {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 3)} ${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+    }
+  };
+
+  // Função para formatar CPF
+  const formatCPF = (value: string): string => {
+    // Remove todos os caracteres não numéricos
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // Aplica a formatação baseada no comprimento
+    if (limitedNumbers.length <= 3) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 6) {
+      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3)}`;
+    } else if (limitedNumbers.length <= 9) {
+      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3, 6)}.${limitedNumbers.slice(6)}`;
+    } else {
+      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3, 6)}.${limitedNumbers.slice(6, 9)}-${limitedNumbers.slice(9)}`;
+    }
+  };
+
+  // Função para extrair apenas números
+  const extractNumbers = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
+
   useEffect(() => {
     fetchNextNumOS();
   }, []);
@@ -99,10 +144,19 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
+    let processedValue = value;
+    
+    // Aplicar formatação específica para telefone e CPF
+    if (field === 'telefone_cliente') {
+      processedValue = formatPhoneNumber(value);
+    } else if (field === 'cpf') {
+      processedValue = formatCPF(value);
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [field]: value
-    }));
+      [field]: processedValue
+      const phoneNumbers = extractNumbers(formData.telefone_cliente);
 
     // Validar datas quando uma delas for alterada
     if (field === 'data_venda' || field === 'data_entrega') {
@@ -169,8 +223,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         tenant_id: tenant.id,
         num_os: nextNumOS,
         cliente_nome: formData.cliente_nome,
-        telefone_cliente: formData.telefone_cliente,
-        cpf: formData.cpf || null,
+        telefone_cliente: extractNumbers(formData.telefone_cliente), // Salvar apenas números
+        cpf: formData.cpf ? extractNumbers(formData.cpf) : null, // Salvar apenas números
         endereco: formData.endereco || null,
         data_nascimento: formData.data_nascimento || null,
         data_venda: formData.data_venda || null,
@@ -811,7 +865,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   value={formData.telefone_cliente}
                   onChange={(e) => handleInputChange('telefone_cliente', e.target.value)}
                   placeholder="(11) 99999-9999"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
                 />
               </div>
             </div>
