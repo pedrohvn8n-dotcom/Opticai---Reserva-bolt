@@ -391,10 +391,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'normal');
         const telefoneValueWidth = pdf.getTextWidth(telefoneValue);
         const telefoneLineWidth = Math.max(telefoneValueWidth + 2, 30);
-        const totalTelefoneWidth = telefoneLabelWidth + 2 + telefoneLineWidth;
         
-        // Posicionar telefone no lado direito
-        const telefoneX = dataEntregaX;
+        // Posicionar telefone mais à esquerda para melhor alinhamento
+        const telefoneX = pageWidth * 0.55; // Aproximadamente 55% da largura da página
         
         pdf.text(telefoneLabel, telefoneX, currentY);
         
