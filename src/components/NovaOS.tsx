@@ -251,7 +251,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       errors.push('Tipo de lente é obrigatório');
     }
   // Função para validação completa (incluindo campos não tocados)
-  const getCompleteValidationErrors = () => {
+  const getCompleteValidationErrors = async () => {
     const errors: string[] = [];
     
     if (!formData.cliente_nome.trim()) {
