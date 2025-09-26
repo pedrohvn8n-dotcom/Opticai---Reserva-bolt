@@ -956,8 +956,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   onChange={(e) => handleInputChange('telefone_cliente', e.target.value)}
                   onBlur={() => handleFieldBlur('telefone_cliente')}
                   placeholder="(11) 9 9999-9999"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                    phoneError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
                   }`}
-                  onBlur={() => handleFieldBlur('telefone_cliente')}
                 />
                 {phoneError && (
                   <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
