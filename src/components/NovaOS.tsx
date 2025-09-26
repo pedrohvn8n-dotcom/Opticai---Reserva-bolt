@@ -399,9 +399,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // Espaço padrão de +2mm
+        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth, currentY); // Sem espaço extra
         // Linha apenas no valor
-        pdf.line(telefoneX + telefoneLabelWidth + 2, currentY + 1, telefoneX + telefoneLabelWidth + 2 + telefoneLineWidth, currentY + 1);
+        pdf.line(telefoneX + telefoneLabelWidth, currentY + 1, telefoneX + telefoneLabelWidth + telefoneLineWidth, currentY + 1);
         
         currentY += 8; // Espaço após nome/telefone (bloco 3)
         
@@ -489,15 +489,24 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.line(adicaoX, currentY + 2, adicaoX + adicaoWidth, currentY + 2);
         }
         
-        currentY += 12;
+        currentY += 15; // Mais espaço antes da observação
         
         // Observação com underline
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
-        const obsText = `Obs.: ${formData.observacao || ''}`;
-        pdf.text(obsText, margin, currentY);
-        const obsWidth = pageWidth - 2 * margin;
-        pdf.line(margin, currentY + 1, margin + obsWidth, currentY + 1);
+        const obsLabel = 'Obs.: ';
+        const obsLabelWidth = pdf.getTextWidth(obsLabel);
+        pdf.text(obsLabel, margin, currentY);
+        
+        // Linha apenas após o label
+        const obsLineWidth = pageWidth - 2 * margin - obsLabelWidth;
+        pdf.setDrawColor(156, 163, 175); // Cor cinza
+        pdf.line(margin + obsLabelWidth, currentY + 1, margin + obsLabelWidth + obsLineWidth, currentY + 1);
+        
+        // Texto da observação (se houver)
+        if (formData.observacao) {
+          pdf.text(formData.observacao, margin + obsLabelWidth + 2, currentY);
+        }
         
       } else {
         // PDF de Venda
