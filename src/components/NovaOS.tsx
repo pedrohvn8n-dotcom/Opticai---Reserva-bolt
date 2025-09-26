@@ -157,6 +157,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     return formattedPhone.replace(/\D/g, '');
   };
 
+  // Função para extrair apenas os números (alias para compatibilidade)
+  const extractNumbers = (formattedPhone: string): string => {
+    return formattedPhone.replace(/\D/g, '');
+  };
+
   // Validação do telefone
   const validatePhone = (phone: string) => {
     const numbers = extractPhoneNumbers(phone);
@@ -227,31 +232,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     }
   };
 
-  const handleSave = async () => {
-    // Validar campos obrigatórios
-    const errors: string[] = [];
-    
-    if (!formData.cliente_nome.trim()) {
-      errors.push('Nome do cliente é obrigatório');
-    }
-    
-    // Só valida telefone se o campo foi "tocado" (usuário saiu do campo)
-    if (touchedFields.has('telefone_cliente')) {
-      const phoneNumbers = extractNumbers(formData.telefone_cliente);
-      if (!formData.telefone_cliente.trim()) {
-        errors.push('Telefone é obrigatório');
-      } else if (phoneNumbers.length !== 11) {
-        errors.push('O telefone deve ter exatamente 11 dígitos');
-      }
-        errors.push('Telefone deve ter exatamente 11 dígitos');
-      }
-    }
-    
-    if (!formData.tipo_lente) {
-      errors.push('Tipo de lente é obrigatório');
-    }
   // Função para validação completa (incluindo campos não tocados)
-  const getCompleteValidationErrors = async () => {
+  const getCompleteValidationErrors = () => {
     const errors: string[] = [];
     
     if (!formData.cliente_nome.trim()) {
@@ -275,28 +257,18 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       const dataEntrega = new Date(formData.data_entrega);
       if (dataEntrega < dataVenda) {
         errors.push('A data de entrega não pode ser anterior à data de venda');
-        if (touchedFields.has('telefone_cliente')) {
-          const phoneNumbers = extractNumbers(formData.telefone_cliente);
-          return !formData.telefone_cliente.trim() || phoneNumbers.length !== 11;
-        }
-        return false;
+      }
+    }
     
     return errors;
   };
 
-    
-    // Adicionar erros de validação existentes
-    if (dateError) {
   // Função para marcar campo como "tocado"
   const handleFieldBlur = (fieldName: string) => {
     setTouchedFields(prev => new Set([...prev, fieldName]));
   };
 
-      errors.push(dateError);
-    }
-    
-    if (phoneError) {
-    
+  const handleSave = async () => {
     // Usar validação completa na hora de salvar
     const completeErrors = getCompleteValidationErrors();
     
@@ -307,8 +279,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       return;
     }
     
-      errors.push(phoneError);
-    }
     setIsSaving(true);
 
     try {
@@ -984,13 +954,13 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   type="tel"
                   value={formData.telefone_cliente}
                   onChange={(e) => handleInputChange('telefone_cliente', e.target.value)}
+                  onBlur={() => handleFieldBlur('telefone_cliente')}
                   placeholder="(11) 9 9999-9999"
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
                     phoneError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                  onBlur={() => handleFieldBlur('telefone_cliente')}
                   }`}
                 />
-                />
+                {phoneError && (
                   <p className="mt-1 text-sm text-red-600 flex items-center space-x-1">
                     <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
