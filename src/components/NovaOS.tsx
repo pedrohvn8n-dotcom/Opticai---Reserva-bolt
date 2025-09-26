@@ -399,9 +399,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth - 8, currentY); // Reduzir espaço entre título e valor
+        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // Espaço padrão de +2mm
         // Linha apenas no valor
-        pdf.line(telefoneX + telefoneLabelWidth - 8, currentY + 1, telefoneX + telefoneLabelWidth - 8 + telefoneLineWidth, currentY + 1);
+        pdf.line(telefoneX + telefoneLabelWidth + 2, currentY + 1, telefoneX + telefoneLabelWidth + 2 + telefoneLineWidth, currentY + 1);
         
         currentY += 8; // Espaço após nome/telefone (bloco 3)
         
