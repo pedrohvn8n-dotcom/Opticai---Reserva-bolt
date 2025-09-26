@@ -430,14 +430,14 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
             fontStyle: 'bold'
           },
           columnStyles: {
-            0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 14 },
-            1: { cellWidth: 22 },
-            2: { cellWidth: 22 },
-            3: { cellWidth: 20 },
-            4: { cellWidth: 20 },
-            5: { cellWidth: 20 }
+            0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 15 },
+            1: { cellWidth: 24 },
+            2: { cellWidth: 24 },
+            3: { cellWidth: 22 },
+            4: { cellWidth: 22 },
+            5: { cellWidth: 22 }
           },
-          tableWidth: osBoxX + osBoxWidth - margin,
+          tableWidth: dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth - margin,
           margin: { left: margin, right: margin }
         });
         
