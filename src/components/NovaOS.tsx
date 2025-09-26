@@ -116,7 +116,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         ...prev,
         [field]: value
       }));
-    }
+    
+    // Extrair números do telefone para validação
+    const phoneNumbers = field === 'telefone_cliente' ? extractNumbers(processedValue) : extractNumbers(formData.telefone_cliente);
 
     // Validar datas quando uma delas for alterada
     if (field === 'data_venda' || field === 'data_entrega') {
