@@ -468,25 +468,25 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         // Descrição da lente (50% da largura, fonte maior)
         const descricaoX = margin + tipoWidth - 5;
-        const descricaoWidth = (pageWidth - 2 * margin) * 0.5;
+        const descricaoWidth = (pageWidth - 2 * margin) * 0.6;
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
         const descricaoLente = formData.descricao_lente || '';
-        pdf.text(descricaoLente, descricaoX, currentY + 1);
+        pdf.text(descricaoLente, descricaoX, currentY + 3);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(descricaoX, currentY + 2, descricaoX + descricaoWidth, currentY + 2);
+        pdf.line(descricaoX, currentY + 4, descricaoX + descricaoWidth, currentY + 4);
         
         // Adição (se multifocal)
         if (formData.tipo_lente === 'Multifocal') {
           const adicaoX = descricaoX + descricaoWidth + 5;
           pdf.setFontSize(9);
           pdf.setFont('helvetica', 'bold');
-          pdf.text('Adição', adicaoX, currentY - 2);
+          pdf.text('Adição', adicaoX, currentY);
           pdf.setFont('helvetica', 'normal');
-          pdf.text(formData.adicao || '', adicaoX, currentY + 1);
+          pdf.text(formData.adicao || '', adicaoX, currentY + 3);
           const adicaoWidth = pageWidth - margin - adicaoX;
           pdf.setDrawColor(156, 163, 175);
-          pdf.line(adicaoX, currentY + 2, adicaoX + adicaoWidth, currentY + 2);
+          pdf.line(adicaoX, currentY + 4, adicaoX + adicaoWidth, currentY + 4);
         }
         
         currentY += 15; // Mais espaço antes da observação
