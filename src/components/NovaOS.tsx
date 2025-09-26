@@ -268,27 +268,27 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       
       // N° OS com título alinhado com o nome da ótica
       const osBoxWidth = 20;
-      const osBoxHeight = 12;
+      const osBoxHeight = 10;
       const osBoxX = pageWidth - margin - osBoxWidth;
-      const osBoxY = currentY + 6; // Posicionar abaixo do título
+      const osBoxY = currentY; // Posicionar na mesma altura do nome da ótica
 
       // Título "N° OS" alinhado com o nome da ótica
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('N° OS', osBoxX + osBoxWidth/2, currentY + 3, { align: 'center' });
+      pdf.text('N° OS', osBoxX + osBoxWidth/2, currentY + 2, { align: 'center' });
       
       // Caixa do número da OS
       pdf.setDrawColor(209, 213, 219);
       pdf.setFillColor(249, 250, 251);
       pdf.rect(osBoxX, osBoxY, osBoxWidth, osBoxHeight, 'FD');
       
-      pdf.setFontSize(16);
+      pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(17, 24, 39);
-      pdf.text(nextNumOS.toString(), osBoxX + osBoxWidth/2, osBoxY + 7.5, { align: 'center' });
+      pdf.text(nextNumOS.toString(), osBoxX + osBoxWidth/2, osBoxY + 6.5, { align: 'center' });
       pdf.setTextColor(0, 0, 0);
       
-      currentY += 22; // Espaço após logo/N° OS
+      currentY += 18; // Espaço após logo/N° OS (bloco 1)
       
       // Função para formatar data no padrão brasileiro
       const formatDate = (dateString: string): string => {
@@ -316,7 +316,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         return phone; // Retorna original se não conseguir formatar
       };
 
-      // Datas na mesma linha com underline apenas nos valores (movidas ligeiramente para baixo)
+      // Datas na mesma linha com underline apenas nos valores
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       
@@ -359,10 +359,10 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       // Linha apenas no valor
       pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 1, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 1);
       
-      currentY += 12; // Espaço após datas
+      currentY += 10; // Espaço após datas (bloco 2)
       
       if (type === 'laboratorio') {
-        // Nome e Telefone na mesma linha com espaçamento padronizado
+        // Nome e Telefone na mesma linha
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         
@@ -382,7 +382,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         // Linha apenas no valor
         pdf.line(margin + nomeLabelWidth + 2, currentY + 1, margin + nomeLabelWidth + 2 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 2), currentY + 1);
         
-        // Telefone com espaçamento padronizado
+        // Telefone com espaçamento padronizado (ajustado para mesmo padrão)
         const telefoneLabel = 'Telefone: ';
         const telefoneValue = formatPhone(formData.telefone_cliente) || '';
         const telefoneLabelWidth = pdf.getTextWidth(telefoneLabel);
@@ -390,7 +390,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         const telefoneValueWidth = pdf.getTextWidth(telefoneValue);
-        const totalTelefoneWidth = telefoneLabelWidth + 2 + Math.max(telefoneValueWidth, 30); // Espaço padronizado
+        const totalTelefoneWidth = telefoneLabelWidth + 2 + Math.max(telefoneValueWidth, 30);
         
         // Posicionar telefone no lado direito
         const telefoneX = dataEntregaX;
@@ -399,11 +399,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // Espaço padronizado
+        pdf.text(telefoneValue, telefoneX + telefoneLabelWidth + 2, currentY); // Mesmo espaçamento dos outros campos
         // Linha apenas no valor
         pdf.line(telefoneX + telefoneLabelWidth + 2, currentY + 1, telefoneX + telefoneLabelWidth + 2 + Math.max(telefoneValueWidth, 30), currentY + 1);
         
-        currentY += 10;
+        currentY += 8; // Espaço após nome/telefone (bloco 3)
         
         // Tabela de graus usando autoTable (mais larga)
         const grausData = [
