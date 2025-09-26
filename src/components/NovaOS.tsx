@@ -431,13 +431,13 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           },
           columnStyles: {
             0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 16 },
-            1: { cellWidth: 26 },
-            2: { cellWidth: 26 },
-            3: { cellWidth: 24 },
-            4: { cellWidth: 24 },
-            5: { cellWidth: 24 }
+            1: { cellWidth: 25 },
+            2: { cellWidth: 25 },
+            3: { cellWidth: 23 },
+            4: { cellWidth: 23 },
+            5: { cellWidth: 23 }
           },
-          tableWidth: pageWidth - 2 * margin - 8,
+          tableWidth: pageWidth - 2 * margin - 15,
           margin: { left: margin, right: margin }
         });
         
@@ -455,36 +455,38 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         // Radio buttons para tipo de lente
         const radioSize = 3;
-        pdf.setDrawColor(37, 99, 235);
-        pdf.setFillColor(formData.tipo_lente === 'Visão Simples' ? 37 : 255, formData.tipo_lente === 'Visão Simples' ? 99 : 255, formData.tipo_lente === 'Visão Simples' ? 235 : 255);
+        pdf.setDrawColor(75, 85, 99);
+        pdf.setFillColor(formData.tipo_lente === 'Visão Simples' ? 75 : 255, formData.tipo_lente === 'Visão Simples' ? 85 : 255, formData.tipo_lente === 'Visão Simples' ? 99 : 255);
         pdf.circle(margin + 2, currentY + 1, radioSize/2, 'FD');
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
         pdf.text('Visão Simples', margin + 6, currentY + 2);
         
-        pdf.setFillColor(formData.tipo_lente === 'Multifocal' ? 37 : 255, formData.tipo_lente === 'Multifocal' ? 99 : 255, formData.tipo_lente === 'Multifocal' ? 235 : 255);
+        pdf.setFillColor(formData.tipo_lente === 'Multifocal' ? 75 : 255, formData.tipo_lente === 'Multifocal' ? 85 : 255, formData.tipo_lente === 'Multifocal' ? 99 : 255);
         pdf.circle(margin + 2, currentY + 5, radioSize/2, 'FD');
         pdf.text('Multifocal', margin + 6, currentY + 6);
         
         // Descrição da lente (50% da largura, fonte maior)
-        const descricaoX = margin + tipoWidth + 5;
+        const descricaoX = margin + tipoWidth - 5;
         const descricaoWidth = (pageWidth - 2 * margin) * 0.5;
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
         const descricaoLente = formData.descricao_lente || '';
-        pdf.text(descricaoLente, descricaoX, currentY - 2);
-        pdf.line(descricaoX, currentY - 1, descricaoX + descricaoWidth, currentY - 1);
+        pdf.text(descricaoLente, descricaoX, currentY + 1);
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(descricaoX, currentY + 2, descricaoX + descricaoWidth, currentY + 2);
         
         // Adição (se multifocal)
         if (formData.tipo_lente === 'Multifocal') {
           const adicaoX = descricaoX + descricaoWidth + 5;
           pdf.setFontSize(9);
           pdf.setFont('helvetica', 'bold');
-          pdf.text('Adição', adicaoX, currentY - 5);
+          pdf.text('Adição', adicaoX, currentY - 2);
           pdf.setFont('helvetica', 'normal');
-          pdf.text(formData.adicao || '', adicaoX, currentY - 2);
+          pdf.text(formData.adicao || '', adicaoX, currentY + 1);
           const adicaoWidth = pageWidth - margin - adicaoX;
-          pdf.line(adicaoX, currentY - 1, adicaoX + adicaoWidth, currentY - 1);
+          pdf.setDrawColor(156, 163, 175);
+          pdf.line(adicaoX, currentY + 2, adicaoX + adicaoWidth, currentY + 2);
         }
         
         currentY += 12;
