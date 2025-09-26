@@ -510,6 +510,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
       } else {
         // PDF de Venda
+        const dateBoxHeight = 8; // Definir altura das caixas
+        
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Dados do Cliente', margin, currentY);
@@ -525,14 +527,14 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         pdf.setDrawColor(209, 213, 219);
         pdf.setFillColor(249, 250, 251);
-        pdf.rect(margin, currentY, 50, dateBoxHeight, 'FD');
-        pdf.rect(margin + 55, currentY, 40, dateBoxHeight, 'FD');
+        pdf.rect(margin, currentY, 50, 8, 'FD');
+        pdf.rect(margin + 55, currentY, 40, 8, 'FD');
         
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
         const clienteNome = formData.cliente_nome.length > 20 ? formData.cliente_nome.substring(0, 20) + '...' : formData.cliente_nome;
-        pdf.text(clienteNome, margin + 25, currentY + 5.5, { align: 'center' });
-        pdf.text(formData.telefone_cliente || '', margin + 75, currentY + 5.5, { align: 'center' });
+        pdf.text(clienteNome, margin + 25, currentY + 5, { align: 'center' });
+        pdf.text(formData.telefone_cliente || '', margin + 75, currentY + 5, { align: 'center' });
         
         currentY += 12;
         
@@ -546,17 +548,17 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 3;
         
         pdf.setFillColor(255, 255, 255);
-        pdf.rect(margin, currentY, 30, dateBoxHeight, 'FD');
-        pdf.rect(margin + 35, currentY, 30, dateBoxHeight, 'FD');
-        pdf.rect(margin + 70, currentY, 40, dateBoxHeight, 'FD');
+        pdf.rect(margin, currentY, 30, 8, 'FD');
+        pdf.rect(margin + 35, currentY, 30, 8, 'FD');
+        pdf.rect(margin + 70, currentY, 40, 8, 'FD');
         
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(formData.cpf || '', margin + 15, currentY + 5.5, { align: 'center' });
-        pdf.text(formData.data_nascimento || '', margin + 50, currentY + 5.5, { align: 'center' });
+        pdf.text(formData.cpf || '', margin + 15, currentY + 5, { align: 'center' });
+        pdf.text(formatDate(formData.data_nascimento) || '', margin + 50, currentY + 5, { align: 'center' });
         const endereco = formData.endereco && formData.endereco.length > 15 ? 
           formData.endereco.substring(0, 15) + '...' : formData.endereco || '';
-        pdf.text(endereco, margin + 90, currentY + 5.5, { align: 'center' });
+        pdf.text(endereco, margin + 90, currentY + 5, { align: 'center' });
         
         currentY += 15;
         
@@ -577,24 +579,24 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 3;
         
         pdf.setFillColor(255, 255, 255);
-        pdf.rect(margin, currentY, 40, dateBoxHeight, 'FD');
-        pdf.rect(margin + 45, currentY, 40, dateBoxHeight, 'FD');
+        pdf.rect(margin, currentY, 40, 8, 'FD');
+        pdf.rect(margin + 45, currentY, 40, 8, 'FD');
         if (formData.forma_pagamento === 'credito') {
-          pdf.rect(margin + 90, currentY, 20, dateBoxHeight, 'FD');
+          pdf.rect(margin + 90, currentY, 20, 8, 'FD');
         }
         
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(formData.valor_total || '', margin + 20, currentY + 5.5, { align: 'center' });
+        pdf.text(formData.valor_total ? `R$ ${formData.valor_total}` : '', margin + 20, currentY + 5, { align: 'center' });
         
         const formaPagamento = formData.forma_pagamento === 'dinheiro' ? 'Dinheiro' : 
           formData.forma_pagamento === 'debito' ? 'Débito' :
           formData.forma_pagamento === 'credito' ? 'Crédito' :
           formData.forma_pagamento === 'pix' ? 'PIX' : 'Outro';
-        pdf.text(formaPagamento, margin + 65, currentY + 5.5, { align: 'center' });
+        pdf.text(formaPagamento, margin + 65, currentY + 5, { align: 'center' });
         
         if (formData.forma_pagamento === 'credito') {
-          pdf.text(formData.credito_parcelas || '', margin + 100, currentY + 5.5, { align: 'center' });
+          pdf.text(formData.credito_parcelas || '', margin + 100, currentY + 5, { align: 'center' });
         }
         
         currentY += 15;
