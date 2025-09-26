@@ -70,6 +70,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 
   const [nextNumOS, setNextNumOS] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [dateError, setDateError] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
@@ -234,11 +235,14 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       errors.push('Nome do cliente é obrigatório');
     }
     
-    if (!formData.telefone_cliente.trim()) {
-      errors.push('Telefone é obrigatório');
-    } else {
-      const phoneNumbers = extractPhoneNumbers(formData.telefone_cliente);
-      if (phoneNumbers.length !== 11) {
+    // Só valida telefone se o campo foi "tocado" (usuário saiu do campo)
+    if (touchedFields.has('telefone_cliente')) {
+      const phoneNumbers = extractNumbers(formData.telefone_cliente);
+      if (!formData.telefone_cliente.trim()) {
+        errors.push('Telefone é obrigatório');
+      } else if (phoneNumbers.length !== 11) {
+        errors.push('O telefone deve ter exatamente 11 dígitos');
+      }
         errors.push('Telefone deve ter exatamente 11 dígitos');
       }
     }
@@ -246,21 +250,65 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     if (!formData.tipo_lente) {
       errors.push('Tipo de lente é obrigatório');
     }
+  // Função para validação completa (incluindo campos não tocados)
+  const getCompleteValidationErrors = () => {
+    const errors: string[] = [];
+    
+    if (!formData.cliente_nome.trim()) {
+      errors.push('Nome do cliente é obrigatório');
+    }
+    
+    const phoneNumbers = extractNumbers(formData.telefone_cliente);
+    if (!formData.telefone_cliente.trim()) {
+      errors.push('Telefone é obrigatório');
+    } else if (phoneNumbers.length !== 11) {
+      errors.push('O telefone deve ter exatamente 11 dígitos');
+    }
+    
+    if (!formData.tipo_lente.trim()) {
+      errors.push('Tipo de lente é obrigatório');
+    }
+    
+    // Validação de data
+    if (formData.data_entrega && formData.data_venda) {
+      const dataVenda = new Date(formData.data_venda);
+      const dataEntrega = new Date(formData.data_entrega);
+      if (dataEntrega < dataVenda) {
+        errors.push('A data de entrega não pode ser anterior à data de venda');
+        if (touchedFields.has('telefone_cliente')) {
+          const phoneNumbers = extractNumbers(formData.telefone_cliente);
+          return !formData.telefone_cliente.trim() || phoneNumbers.length !== 11;
+        }
+        return false;
+    
+    return errors;
+  };
+
     
     // Adicionar erros de validação existentes
     if (dateError) {
+  // Função para marcar campo como "tocado"
+  const handleFieldBlur = (fieldName: string) => {
+    setTouchedFields(prev => new Set([...prev, fieldName]));
+  };
+
       errors.push(dateError);
     }
     
     if (phoneError) {
-      errors.push(phoneError);
-    }
     
-    if (errors.length > 0) {
-      alert('Por favor, corrija os seguintes erros:\n\n• ' + errors.join('\n• '));
+    // Usar validação completa na hora de salvar
+    const completeErrors = getCompleteValidationErrors();
+    
+    if (completeErrors.length > 0) {
+      alert(`Por favor, corrija os seguintes erros antes de salvar:\n\n${completeErrors.join('\n')}`);
+      // Marcar todos os campos como tocados para mostrar os erros
+      setTouchedFields(new Set(['cliente_nome', 'telefone_cliente', 'tipo_lente', 'data_entrega']));
       return;
     }
-
+    
+      errors.push(phoneError);
+    }
     setIsSaving(true);
 
     try {
@@ -939,6 +987,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   placeholder="(11) 9 9999-9999"
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
                     phoneError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  onBlur={() => handleFieldBlur('telefone_cliente')}
                   }`}
                 />
                 {phoneError && (
