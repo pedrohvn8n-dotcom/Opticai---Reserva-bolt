@@ -491,6 +491,28 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     }
   };
 
+  // Função para formatar valores com sinal de +
+  const formatValueWithSign = (value: string | null) => {
+    if (!value || value === '' || value === '0' || value === '0.00') return '';
+    
+    // Remove qualquer sinal existente para processar corretamente
+    const cleanValue = value.replace(/^[+-]/, '');
+    const numValue = parseFloat(cleanValue);
+    
+    if (isNaN(numValue)) return value;
+    
+    // Se o valor original tinha sinal negativo, manter negativo
+    if (value.startsWith('-')) {
+      return numValue.toFixed(2);
+    }
+    // Se positivo, adicionar sinal de +
+    else if (numValue > 0) {
+      return `+${numValue.toFixed(2)}`;
+    }
+    
+    return numValue.toFixed(2);
+  };
+
   const generatePDF = async (type: 'laboratorio' | 'venda') => {
     try {
       // Criar PDF com dimensões A6 paisagem
@@ -710,8 +732,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         // Tabela de graus usando autoTable (mais larga)
         const grausData = [
-          ['OD', formData.esf_od || '', formData.cil_od || '', formData.eixo_od || '', formData.dnp_od || '', formData.altura_od || ''],
-          ['OE', formData.esf_oe || '', formData.cil_oe || '', formData.eixo_oe || '', formData.dnp_oe || '', formData.altura_oe || '']
+          ['OD', formatValueWithSign(formData.esf_od), formData.cil_od || '', formData.eixo_od || '', formData.dnp_od || '', formData.altura_od || ''],
+          ['OE', formatValueWithSign(formData.esf_oe), formData.cil_oe || '', formData.eixo_oe || '', formData.dnp_oe || '', formData.altura_oe || '']
         ];
         
         autoTable(pdf, {
@@ -746,7 +768,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         currentY = pdf.lastAutoTable.finalY + 6;
         
-        // Tipo de lente, descrição e adição na mesma linha
+        // Tipo de lente e adição na mesma linha
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
         
@@ -754,6 +776,10 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         const tipoWidth = (pageWidth - 2 * margin) * 0.3;
         pdf.setFont('helvetica', 'bold');
         pdf.text('Tipo de Lente', margin, currentY);
+        
+        // Adição (lado direito, alinhado com Tipo de Lente)
+        pdf.text('Adição', margin + 80, currentY);
+        
         currentY += 4;
         
         // Radio buttons para tipo de lente
@@ -769,30 +795,32 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.circle(margin + 2, currentY + 5, radioSize/2, 'FD');
         pdf.text('Multifocal', margin + 6, currentY + 6);
         
-        // Descrição da lente (50% da largura, fonte maior)
-        const descricaoX = margin + tipoWidth - 5;
-        const descricaoWidth = (pageWidth - 2 * margin) * 0.6;
+        // Quadrado para adição (centralizado)
+        if (formData.adicao) {
+          const adicaoValue = formatValueWithSign(formData.adicao);
+          
+          // Desenhar retângulo para adição
+          pdf.rect(margin + 80, currentY - 1, 25, 12);
+          
+          // Centralizar texto dentro do retângulo
+          const textWidth = pdf.getTextWidth(adicaoValue);
+          const rectCenterX = margin + 80 + 12.5; // Centro do retângulo
+          const textX = rectCenterX - (textWidth / 2);
+          
+          pdf.text(adicaoValue, textX, currentY + 5);
+        }
+        
+        // Descrição da lente (abaixo)
+        currentY += 15;
+        
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
         const descricaoLente = formData.descricao_lente || '';
-        pdf.text(descricaoLente, descricaoX, currentY + 3);
+        pdf.text(descricaoLente, margin, currentY);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(descricaoX, currentY + 4, descricaoX + descricaoWidth, currentY + 4);
+        pdf.line(margin, currentY + 1, pageWidth - margin, currentY + 1);
         
-        // Adição (se multifocal)
-        if (formData.tipo_lente === 'Multifocal') {
-          const adicaoX = descricaoX + descricaoWidth + 5;
-          pdf.setFontSize(9);
-          pdf.setFont('helvetica', 'bold');
-          pdf.text('Adição', adicaoX, currentY);
-          pdf.setFont('helvetica', 'normal');
-          pdf.text(formData.adicao || '', adicaoX, currentY + 3);
-          const adicaoWidth = pageWidth - margin - adicaoX;
-          pdf.setDrawColor(156, 163, 175);
-          pdf.line(adicaoX, currentY + 4, adicaoX + adicaoWidth, currentY + 4);
-        }
-        
-        currentY += 15; // Mais espaço antes da observação
+        currentY += 10; // Espaço antes da observação
         
         // Observação com underline
         pdf.setFontSize(9);
