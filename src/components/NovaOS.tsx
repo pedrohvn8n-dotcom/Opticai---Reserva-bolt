@@ -1191,7 +1191,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                         </button>
                         <input
                           type="text"
-                          value={formData.esf_od}
+                          value={formData.esf_od && parseFloat(formData.esf_od) > 0 ? `+${formData.esf_od}` : formData.esf_od}
                           onChange={(e) => handleManualInput(e, 'esf_od', 'esferico')}
                           onBlur={(e) => validateAndCorrect(e, 'esf_od', 'esferico')}
                           className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
@@ -1324,7 +1324,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                         </button>
                         <input
                           type="text"
-                          value={formData.esf_oe}
+                          value={formData.esf_oe && parseFloat(formData.esf_oe) > 0 ? `+${formData.esf_oe}` : formData.esf_oe}
                           onChange={(e) => handleManualInput(e, 'esf_oe', 'esferico')}
                           onBlur={(e) => validateAndCorrect(e, 'esf_oe', 'esferico')}
                           className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
