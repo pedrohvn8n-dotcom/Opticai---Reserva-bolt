@@ -880,15 +880,19 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
               </div>
               
               <div className="text-right">
-                <label htmlFor="num_os" className="block text-sm font-medium text-gray-700 mb-2 text-center">
-                <input
-                </label>
-                  type="number"
-                  value={nextNumOS}
-                  onChange={(e) => handleNumOSChange(e.target.value)}
-                  className="w-32 text-center text-2xl font-bold text-gray-900 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2"
-                  min="1"
-                />
+                <div className="flex flex-col items-center">
+                  <label htmlFor="num_os" className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                    N° OS
+                  </label>
+                  <input
+                    id="num_os"
+                    type="number"
+                    value={nextNumOS}
+                    onChange={(e) => handleNumOSChange(e.target.value)}
+                    className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                    placeholder="Auto"
+                  />
+                </div>
               </div>
             </div>
 
@@ -1247,6 +1251,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
               </div>
               {formData.forma_pagamento === 'credito' && (
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Parcelas</label>
                   <input
                     type="number"
                     value={formData.credito_parcelas}
@@ -1254,7 +1259,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     placeholder="1"
                     min="1"
                     max="12"
-                </label>
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
