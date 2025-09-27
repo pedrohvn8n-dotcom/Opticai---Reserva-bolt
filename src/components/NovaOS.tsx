@@ -1247,7 +1247,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
               </div>
               {formData.forma_pagamento === 'credito' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Número de Parcelas</label>
                   <input
                     type="number"
                     value={formData.credito_parcelas}
@@ -1255,6 +1254,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     placeholder="1"
                     min="1"
                     max="12"
+                </label>
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
