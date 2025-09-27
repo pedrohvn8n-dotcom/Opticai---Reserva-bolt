@@ -257,15 +257,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       const dataEntrega = new Date(formData.data_entrega);
       if (dataEntrega < dataVenda) {
         errors.push('A data de entrega não pode ser anterior à data de venda');
-  // Função para formatar CPF
-  const formatCPF = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
-    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
-    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
-  };
-
       }
     }
     
@@ -888,13 +879,13 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 </div>
               </div>
               
-              <div className="text-right">
+              <div className="text-center">
                 <label className="block text-sm font-medium text-gray-700 mb-2">N° OS</label>
                 <input
                   type="number"
                   value={nextNumOS}
                   onChange={(e) => handleNumOSChange(e.target.value)}
-                  className="w-32 text-center text-2xl font-bold text-gray-900 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2"
+                  className="w-24 text-center text-2xl font-bold text-gray-900 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2"
                   min="1"
                 />
               </div>
@@ -1010,8 +1001,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   type="text"
                   value={formData.cpf}
                   onChange={handleCPFChange}
+                  onBlur={() => handleFieldBlur('cpf')}
+                  className={`px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                    cpfError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                  style={{ 
+                    width: `${Math.max(120, formData.cpf.length * 12 + 40)}px`,
+                    minWidth: '120px',
+                    maxWidth: '200px'
+                  }}
                   placeholder="000.000.000-00"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
