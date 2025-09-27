@@ -1084,6 +1084,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                         </li>
                       ))}
                     </ul>
+                  </label>
                   </div>
                 </div>
               </div>
