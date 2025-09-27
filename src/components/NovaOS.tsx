@@ -1075,7 +1075,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-red-800 mb-2">Corrija os seguintes erros:</h4>
+                    <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
                     <ul className="text-sm text-red-700 space-y-1">
                       {validationErrors.map((error, index) => (
                         <li key={index} className="flex items-center space-x-2">
