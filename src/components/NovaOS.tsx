@@ -257,10 +257,25 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       const dataEntrega = new Date(formData.data_entrega);
       if (dataEntrega < dataVenda) {
         errors.push('A data de entrega não pode ser anterior à data de venda');
+  // Função para formatar CPF
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
       }
     }
     
     return errors;
+  };
+
+  // Função para lidar com mudanças no CPF
+  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCPF(e.target.value);
+    setFormData(prev => ({ ...prev, cpf: formatted }));
   };
 
   // Função para marcar campo como "tocado"
@@ -977,7 +992,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <input
                   type="text"
                   value={formData.cpf}
-                  onChange={(e) => handleInputChange('cpf', e.target.value)}
+                  onChange={handleCPFChange}
                   placeholder="000.000.000-00"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
