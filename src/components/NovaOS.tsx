@@ -56,7 +56,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     esf_oe: '',
     cil_oe: '',
     eixo_oe: '',
-    adicao: '',
+    adicao: '1.00',
     tipo_lente: 'Visão Simples',
     descricao_lente: '',
     observacao: '',
@@ -75,6 +75,125 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   const [dateError, setDateError] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Função para formatar valores com sinal + para positivos
+  const formatWithPlusSign = (value: string | number): string => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '';
+    if (numValue > 0) {
+      return `+${numValue.toFixed(2)}`;
+    }
+    return numValue.toFixed(2);
+  };
+
+  // Função para remover formatação e obter valor numérico
+  const parseNumericValue = (value: string): number => {
+    const cleanValue = value.replace(/^\+/, '');
+    return parseFloat(cleanValue) || 0;
+  };
+
+  // Funções para validação e ajuste de valores
+  const roundToMultiple = (value: number, multiple: number): number => {
+    return Math.round(value / multiple) * multiple;
+  };
+
+  const formatValue = (value: number, decimals: number = 2): string => {
+    return value.toFixed(decimals).replace(/\.?0+$/, '');
+  };
+
+  const adjustValue = (field: keyof typeof formData, increment: number, type: string) => {
+    const currentValue = parseFloat(formData[field] as string) || 0;
+    let newValue = currentValue + increment;
+
+    // Aplicar regras específicas por tipo
+    switch (type) {
+      case 'esferico':
+        // Esférico: múltiplos de 0.25, pode ser positivo ou negativo
+        newValue = roundToMultiple(newValue, 0.25);
+        break;
+      
+      case 'cilindrico':
+        // Cilíndrico: múltiplos de 0.25, apenas negativo ou zero
+        newValue = roundToMultiple(newValue, 0.25);
+        if (newValue > 0) newValue = 0;
+        break;
+      
+      case 'eixo':
+        // Eixo: múltiplos de 5, entre 0 e 180
+        newValue = roundToMultiple(newValue, 5);
+        if (newValue < 0) newValue = 0;
+        if (newValue > 180) newValue = 180;
+        break;
+      
+      case 'dnp':
+      case 'altura':
+        // DNP e Altura: números inteiros, máximo 100
+        newValue = Math.round(newValue);
+        if (newValue < 0) newValue = 0;
+        if (newValue > 100) newValue = 100;
+        break;
+    }
+
+    // Formatar o valor
+    const formattedValue = type === 'eixo' || type === 'dnp' || type === 'altura' 
+      ? newValue.toString() 
+      : formatValue(newValue);
+
+    setFormData(prev => ({
+      ...prev,
+      [field]: formattedValue
+    }));
+  };
+
+  const handleManualInput = (e: React.ChangeEvent<HTMLInputElement>, field: keyof typeof formData, type: string) => {
+    const value = e.target.value;
+    
+    // Permitir entrada temporária para digitação
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const validateAndCorrect = (e: React.FocusEvent<HTMLInputElement>, field: keyof typeof formData, type: string) => {
+    const value = parseFloat(e.target.value) || 0;
+    let correctedValue = value;
+
+    // Aplicar correções específicas por tipo
+    switch (type) {
+      case 'esferico':
+        correctedValue = roundToMultiple(value, 0.25);
+        break;
+      
+      case 'cilindrico':
+        correctedValue = roundToMultiple(value, 0.25);
+        if (correctedValue > 0) correctedValue = 0;
+        break;
+      
+      case 'eixo':
+        correctedValue = roundToMultiple(value, 5);
+        if (correctedValue < 0) correctedValue = 0;
+        if (correctedValue > 180) correctedValue = 180;
+        break;
+      
+      case 'dnp':
+      case 'altura':
+        correctedValue = Math.round(value);
+        if (correctedValue < 0) correctedValue = 0;
+        if (correctedValue > 100) correctedValue = 100;
+        break;
+    }
+
+    // Formatar o valor corrigido
+    const formattedValue = type === 'eixo' || type === 'dnp' || type === 'altura' 
+      ? correctedValue.toString() 
+      : formatValue(correctedValue);
+
+    setFormData(prev => ({
+      ...prev,
+      [field]: formattedValue
+    }));
+  };
 
   useEffect(() => {
     fetchNextNumOS();
@@ -1033,113 +1152,283 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Graus</h3>
             
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+            <div className="overflow-x-auto print:overflow-visible">
+              <table className="w-full border-collapse print:text-xs">
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700 w-16"></th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-medium text-gray-700">Esférico</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-medium text-gray-700">Cilíndrico</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-medium text-gray-700">Eixo</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-medium text-gray-700">DNP</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-medium text-gray-700">Altura</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center font-medium text-gray-700 print:px-1">Esférico</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center font-medium text-gray-700 print:px-1">Cilíndrico</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center font-medium text-gray-700 print:px-1">Eixo</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center font-medium text-gray-700 print:px-1">DNP</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center font-medium text-gray-700 print:px-1">Altura</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="border border-gray-300 px-4 py-3 font-medium text-gray-700 bg-gray-50">OD</td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.esf_od}
-                        onChange={(e) => handleInputChange('esf_od', e.target.value)}
-                        placeholder="+2.50"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-2 py-2 font-medium text-gray-700 bg-gray-50 print:px-1">OD</td>
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('esf_od', -0.25, 'esferico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.esf_od}
+                          onChange={(e) => handleManualInput(e, 'esf_od', 'esferico')}
+                          onBlur={(e) => validateAndCorrect(e, 'esf_od', 'esferico')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0.00"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('esf_od', 0.25, 'esferico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.cil_od}
-                        onChange={(e) => handleInputChange('cil_od', e.target.value)}
-                        placeholder="-0.75"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('cil_od', -0.25, 'cilindrico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.cil_od}
+                          onChange={(e) => handleManualInput(e, 'cil_od', 'cilindrico')}
+                          onBlur={(e) => validateAndCorrect(e, 'cil_od', 'cilindrico')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0.00"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('cil_od', 0.25, 'cilindrico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.eixo_od}
-                        onChange={(e) => handleInputChange('eixo_od', e.target.value)}
-                        placeholder="90"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('eixo_od', -5, 'eixo')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.eixo_od}
+                          onChange={(e) => handleManualInput(e, 'eixo_od', 'eixo')}
+                          onBlur={(e) => validateAndCorrect(e, 'eixo_od', 'eixo')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('eixo_od', 5, 'eixo')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.dnp_od}
-                        onChange={(e) => handleInputChange('dnp_od', e.target.value)}
-                        placeholder="32"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('dnp_od', -1, 'dnp')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.dnp_od}
+                          onChange={(e) => handleManualInput(e, 'dnp_od', 'dnp')}
+                          onBlur={(e) => validateAndCorrect(e, 'dnp_od', 'dnp')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('dnp_od', 1, 'dnp')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.altura_od}
-                        onChange={(e) => handleInputChange('altura_od', e.target.value)}
-                        placeholder="18"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('altura_od', -1, 'altura')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.altura_od}
+                          onChange={(e) => handleManualInput(e, 'altura_od', 'altura')}
+                          onBlur={(e) => validateAndCorrect(e, 'altura_od', 'altura')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('altura_od', 1, 'altura')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   <tr>
-                    <td className="border border-gray-300 px-4 py-3 font-medium text-gray-700 bg-gray-50">OE</td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.esf_oe}
-                        onChange={(e) => handleInputChange('esf_oe', e.target.value)}
-                        placeholder="+1.25"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-2 py-2 font-medium text-gray-700 bg-gray-50 print:px-1">OE</td>
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('esf_oe', -0.25, 'esferico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.esf_oe}
+                          onChange={(e) => handleManualInput(e, 'esf_oe', 'esferico')}
+                          onBlur={(e) => validateAndCorrect(e, 'esf_oe', 'esferico')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0.00"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('esf_oe', 0.25, 'esferico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.cil_oe}
-                        onChange={(e) => handleInputChange('cil_oe', e.target.value)}
-                        placeholder="-1.00"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('cil_oe', -0.25, 'cilindrico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.cil_oe}
+                          onChange={(e) => handleManualInput(e, 'cil_oe', 'cilindrico')}
+                          onBlur={(e) => validateAndCorrect(e, 'cil_oe', 'cilindrico')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0.00"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('cil_oe', 0.25, 'cilindrico')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.eixo_oe}
-                        onChange={(e) => handleInputChange('eixo_oe', e.target.value)}
-                        placeholder="5"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('eixo_oe', -5, 'eixo')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.eixo_oe}
+                          onChange={(e) => handleManualInput(e, 'eixo_oe', 'eixo')}
+                          onBlur={(e) => validateAndCorrect(e, 'eixo_oe', 'eixo')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('eixo_oe', 5, 'eixo')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.dnp_oe}
-                        onChange={(e) => handleInputChange('dnp_oe', e.target.value)}
-                        placeholder="31"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('dnp_oe', -1, 'dnp')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.dnp_oe}
+                          onChange={(e) => handleManualInput(e, 'dnp_oe', 'dnp')}
+                          onBlur={(e) => validateAndCorrect(e, 'dnp_oe', 'dnp')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('dnp_oe', 1, 'dnp')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
-                    <td className="border border-gray-300 p-0">
-                      <input
-                        type="text"
-                        value={formData.altura_oe}
-                        onChange={(e) => handleInputChange('altura_oe', e.target.value)}
-                        placeholder="17.5"
-                        className="w-full px-4 py-3 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded"
-                      />
+                    <td className="border border-gray-300 px-1 py-2 print:px-0.5">
+                      <div className="flex items-center justify-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('altura_oe', -1, 'altura')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          value={formData.altura_oe}
+                          onChange={(e) => handleManualInput(e, 'altura_oe', 'altura')}
+                          onBlur={(e) => validateAndCorrect(e, 'altura_oe', 'altura')}
+                          className="w-16 px-1 py-1 border border-gray-300 rounded text-center text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent print:border-none print:w-full"
+                          placeholder="0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => adjustValue('altura_oe', 1, 'altura')}
+                          className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold flex items-center justify-center print:hidden"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -1193,14 +1482,32 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 
               {formData.tipo_lente === 'Multifocal' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Adição</label>
-                  <input
-                    type="text"
-                    value={formData.adicao}
-                    onChange={(e) => handleInputChange('adicao', e.target.value)}
-                    placeholder="+2.00"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Adição
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={formData.adicao}
+                      onChange={(e) => handleInputChange('adicao', e.target.value)}
+                      className="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                      placeholder="+1.00"
+                    />
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col print:hidden">
+                      <button
+                        type="button"
+                        className="w-6 h-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-t flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                      <button
+                        type="button"
+                        className="w-6 h-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-b flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
