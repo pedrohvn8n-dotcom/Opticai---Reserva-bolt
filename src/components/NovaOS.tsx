@@ -894,7 +894,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   type="number"
                   value={nextNumOS}
                   onChange={(e) => handleNumOSChange(e.target.value)}
-                  className="w-24 text-center text-2xl font-bold text-gray-900 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2"
+                  className="w-32 text-center text-2xl font-bold text-gray-900 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2"
                   min="1"
                 />
               </div>
