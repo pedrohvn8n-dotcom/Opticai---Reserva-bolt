@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Save, FileText, Download, Plus, Minus } from 'lucide-react';
 import { supabase, Tenant } from '../lib/supabase';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -249,6 +249,19 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     
     // Atualizar lista de erros
     updateValidationErrors();
+  };
+
+  const handleAdicaoChange = (increment: boolean) => {
+    const currentValue = parseFloat(formData.adicao) || 1.00;
+    let newValue;
+    
+    if (increment) {
+      newValue = Math.min(currentValue + 0.25, 4.00);
+    } else {
+      newValue = Math.max(currentValue - 0.25, 1.00);
+    }
+    
+    setFormData(prev => ({ ...prev, adicao: newValue.toFixed(2) }));
   };
 
   // Função para formatar telefone durante a digitação
@@ -1486,27 +1499,27 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     Adição
                   </label>
                   <div className="relative">
+                    <button 
+                      type="button"
+                      onClick={() => handleAdicaoChange(false)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
                     <input
                       type="text"
-                      value={formData.adicao}
-                      onChange={(e) => handleInputChange('adicao', e.target.value)}
+                      value={`+${formData.adicao}`}
+                      readOnly
                       className="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
                       placeholder="+1.00"
                     />
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col print:hidden">
-                      <button
-                        type="button"
-                        className="w-6 h-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-t flex items-center justify-center"
-                      >
-                        +
-                      </button>
-                      <button
-                        type="button"
-                        className="w-6 h-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-b flex items-center justify-center"
-                      >
-                        -
-                      </button>
-                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => handleAdicaoChange(true)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               )}
