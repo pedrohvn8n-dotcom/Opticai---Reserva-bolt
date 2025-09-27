@@ -880,7 +880,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
               </div>
               
               <div className="text-right">
-                <label className="block text-sm font-medium text-gray-700 mb-2 text-left">N° OS</label>
+                <label htmlFor="num_os" className="block text-sm font-medium text-gray-700 mb-2 text-center">
                 <input
                   type="number"
                   value={nextNumOS}
