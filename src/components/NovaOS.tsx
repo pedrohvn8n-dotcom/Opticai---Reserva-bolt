@@ -515,6 +515,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 
   const generatePDF = async (type: 'laboratorio' | 'venda') => {
     try {
+      const doc = new jsPDF();
+      
       // Criar PDF com dimensões A6 paisagem
       const pdf = new jsPDF({
         orientation: 'landscape',
@@ -728,7 +730,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         // Linha apenas no valor
         pdf.line(telefoneX + telefoneLabelWidth, currentY + 1, telefoneX + telefoneLabelWidth + telefoneLineWidth, currentY + 1);
         
-        doc.text('Adição', 450, tipoLenteY);
+        currentY += 8;
         
         // Tabela de graus usando autoTable (mais larga)
         const grausData = [
@@ -788,7 +790,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFillColor(formData.tipo_lente === 'Visão Simples' ? 75 : 255, formData.tipo_lente === 'Visão Simples' ? 85 : 255, formData.tipo_lente === 'Visão Simples' ? 99 : 255);
         pdf.circle(margin + 2, currentY + 1, radioSize/2, 'FD');
         pdf.setFontSize(8);
-          const adicaoX = 450;
         pdf.text('Visão Simples', margin + 6, currentY + 2);
         
         pdf.setFillColor(formData.tipo_lente === 'Multifocal' ? 75 : 255, formData.tipo_lente === 'Multifocal' ? 85 : 255, formData.tipo_lente === 'Multifocal' ? 99 : 255);
@@ -826,27 +827,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
         const obsLabel = 'Obs.: ';
-        // Descrição da Lente (linha centralizada)
-        const descricaoY = yPos + 10;
-        doc.setFont('helvetica', 'bold');
-        doc.text('Descrição da Lente:', 30, descricaoY);
-        
-        // Linha para descrição da lente (centralizada)
-        const descricaoLineY = descricaoY + 15;
-        const descricaoLineStart = 100;
-        const descricaoLineEnd = 500;
-        doc.line(descricaoLineStart, descricaoLineY, descricaoLineEnd, descricaoLineY);
-        
-        if (formData.descricao_lente) {
-          doc.setFont('helvetica', 'normal');
-          const descricaoText = formData.descricao_lente;
-          const descricaoTextWidth = doc.getTextWidth(descricaoText);
-          const descricaoTextX = (descricaoLineStart + descricaoLineEnd - descricaoTextWidth) / 2;
-          doc.text(descricaoText, descricaoTextX, descricaoLineY - 2);
-        }
-        
-        // Observações
-        const obsY = descricaoLineY + 30;
+        const obsLabelWidth = pdf.getTextWidth(obsLabel);
+        pdf.text(obsLabel, margin, currentY);
         
         // Linha apenas após o label
         const obsLineWidth = pageWidth - 2 * margin - obsLabelWidth;
@@ -1122,7 +1104,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     </svg>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
                     <ul className="text-sm text-red-700 space-y-1">
                       {validationErrors.map((error, index) => (
                         <li key={index} className="flex items-center space-x-2">
@@ -1131,7 +1112,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                         </li>
                       ))}
                     </ul>
-                  </label>
                   </div>
                 </div>
               </div>
