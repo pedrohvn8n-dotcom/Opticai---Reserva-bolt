@@ -1687,7 +1687,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <textarea
                   value={formData.observacao_cliente}
                   onChange={(e) => handleInputChange('observacao_cliente', e.target.value)}
-                  placeholder="Comentários ou solicitações do cliente"
+                  placeholder="Observações sobre a venda"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24"
                 />
               </div>
