@@ -591,6 +591,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         'Endereço não informado';
       const enderecoTruncated = endereco.length > 40 ? endereco.substring(0, 40) + '...' : endereco;
       pdf.text(enderecoTruncated, infoX, currentY + 6);
+      pdf.text(`Tel: ${tenant.telefone || '(81) 98898-4547'}`, infoX, currentY + 9);
       
       // N° OS com título alinhado com o nome da ótica
       const osBoxWidth = 20;
@@ -1074,11 +1075,12 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{tenant.name}</h2>
                   <p className="text-gray-600">
-                    {tenant.endereco ? 
+                    {tenant.endereco ?
                       `${tenant.endereco}${tenant.numero ? `, ${tenant.numero}` : ''}`
                       : 'Endereço não informado'
                     }
                   </p>
+                  <p className="text-gray-600">Tel: {tenant.telefone || '(81) 98898-4547'}</p>
                 </div>
               </div>
               
