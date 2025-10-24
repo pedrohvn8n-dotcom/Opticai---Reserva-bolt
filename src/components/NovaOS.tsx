@@ -732,15 +732,20 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         
         currentY += 8;
         
-        // Tabela de graus usando autoTable (mais larga)
+        // Determinar valor da adição baseado no tipo de lente
+        const adicaoValue = formData.tipo_lente === 'Multifocal'
+          ? formatValueWithSign(formData.adicao)
+          : '---';
+
+        // Tabela de graus usando autoTable com coluna Adição
         const grausData = [
-          ['OD', formatValueWithSign(formData.esf_od), formData.cil_od || '', formData.eixo_od || '', formData.dnp_od || '', formData.altura_od || ''],
-          ['OE', formatValueWithSign(formData.esf_oe), formData.cil_oe || '', formData.eixo_oe || '', formData.dnp_oe || '', formData.altura_oe || '']
+          ['OD', formatValueWithSign(formData.esf_od), formData.cil_od || '', formData.eixo_od || '', formData.dnp_od || '', formData.altura_od || '', adicaoValue],
+          ['OE', formatValueWithSign(formData.esf_oe), formData.cil_oe || '', formData.eixo_oe || '', formData.dnp_oe || '', formData.altura_oe || '', '']
         ];
-        
+
         autoTable(pdf, {
           startY: currentY,
-          head: [['', 'Esférico', 'Cilíndrico', 'Eixo', 'DNP', 'Altura']],
+          head: [['', 'Esférico', 'Cilíndrico', 'Eixo', 'DNP', 'Altura', 'Adição']],
           body: grausData,
           theme: 'grid',
           styles: {
@@ -757,70 +762,78 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
             fontStyle: 'bold'
           },
           columnStyles: {
-            0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 16 },
-            1: { cellWidth: 25 },
-            2: { cellWidth: 25 },
-            3: { cellWidth: 23 },
-            4: { cellWidth: 23 },
-            5: { cellWidth: 23 }
+            0: { fillColor: [249, 250, 251], fontStyle: 'bold', cellWidth: 15 },
+            1: { cellWidth: 21 },
+            2: { cellWidth: 21 },
+            3: { cellWidth: 19 },
+            4: { cellWidth: 19 },
+            5: { cellWidth: 19 },
+            6: { cellWidth: 22, fontSize: 11, fontStyle: 'bold' }
           },
-          tableWidth: pageWidth - 2 * margin - 15,
-          margin: { left: margin, right: margin }
+          tableWidth: pageWidth - 2 * margin,
+          margin: { left: margin, right: margin },
+          didDrawCell: (data) => {
+            // Mesclar a célula de Adição nas duas linhas (OD e OE)
+            if (data.column.index === 6 && data.row.index === 0) {
+              // Desenhar linha vertical apenas do lado esquerdo da célula de adição
+              pdf.setDrawColor(209, 213, 219);
+              pdf.setLineWidth(0.5);
+              const cellY = data.cell.y;
+              const cellX = data.cell.x;
+              const cellHeight = data.cell.height * 2; // Altura de 2 células
+
+              // Remover linha horizontal entre OD e OE na coluna Adição
+              pdf.setFillColor(255, 255, 255);
+              pdf.rect(cellX, cellY + data.cell.height - 0.25, data.cell.width, 0.5, 'F');
+            }
+          }
         });
-        
+
         currentY = pdf.lastAutoTable.finalY + 6;
-        
-        // Tipo de lente e adição na mesma linha
+
+        // Tipo de lente e descrição da lente na mesma linha
         pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'normal');
-        
-        // Tipo de Lente (30% da largura)
-        const tipoWidth = (pageWidth - 2 * margin) * 0.3;
         pdf.setFont('helvetica', 'bold');
         pdf.text('Tipo de Lente', margin, currentY);
-        
-        // Adição (lado direito, alinhado com Tipo de Lente)
-        pdf.text('Adição', margin + 80, currentY);
-        
+
         currentY += 4;
-        
+
         // Radio buttons para tipo de lente
         const radioSize = 3;
         pdf.setDrawColor(75, 85, 99);
         pdf.setFillColor(formData.tipo_lente === 'Visão Simples' ? 75 : 255, formData.tipo_lente === 'Visão Simples' ? 85 : 255, formData.tipo_lente === 'Visão Simples' ? 99 : 255);
         pdf.circle(margin + 2, currentY + 1, radioSize/2, 'FD');
         pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
         pdf.text('Visão Simples', margin + 6, currentY + 2);
-        
+
         pdf.setFillColor(formData.tipo_lente === 'Multifocal' ? 75 : 255, formData.tipo_lente === 'Multifocal' ? 85 : 255, formData.tipo_lente === 'Multifocal' ? 99 : 255);
         pdf.circle(margin + 2, currentY + 5, radioSize/2, 'FD');
         pdf.text('Multifocal', margin + 6, currentY + 6);
-        
-        // Quadrado para adição (centralizado)
-        if (formData.adicao) {
-          const adicaoValue = formatValueWithSign(formData.adicao);
-          
-          // Desenhar retângulo para adição
-          pdf.rect(margin + 80, currentY - 1, 25, 12);
-          
-          // Centralizar texto dentro do retângulo
-          const textWidth = pdf.getTextWidth(adicaoValue);
-          const rectCenterX = margin + 80 + 12.5; // Centro do retângulo
-          const textX = rectCenterX - (textWidth / 2);
-          
-          pdf.text(adicaoValue, textX, currentY + 5);
-        }
-        
-        // Descrição da lente (abaixo)
-        currentY += 15;
-        
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'normal');
+
+        // Descrição da lente ao lado do tipo de lente - centralizada verticalmente
         const descricaoLente = formData.descricao_lente || '';
-        pdf.text(descricaoLente, margin, currentY);
+        const descricaoStartX = margin + 42;
+        const descricaoEndX = pageWidth - margin;
+        const descricaoLineLength = descricaoEndX - descricaoStartX;
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+
+        // Calcular a posição Y centralizada (meio da área dos radio buttons)
+        const descricaoY = currentY + 3.5;
+
+        // Desenhar a linha para descrição
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin, currentY + 1, pageWidth - margin, currentY + 1);
-        
+        pdf.line(descricaoStartX, descricaoY + 1, descricaoEndX, descricaoY + 1);
+
+        // Centralizar o texto na linha
+        if (descricaoLente) {
+          const textWidth = pdf.getTextWidth(descricaoLente);
+          const textX = descricaoStartX + (descricaoLineLength - textWidth) / 2;
+          pdf.text(descricaoLente, textX, descricaoY);
+        }
+
         currentY += 10; // Espaço antes da observação
         
         // Observação com underline
