@@ -563,13 +563,13 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       
       // Título
       const title = type === 'laboratorio' ? 'REMESSA DO LABORATÓRIO' : 'REMESSA DE VENDA';
-      pdf.setFontSize(12);
+      pdf.setFontSize(13);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(title, pageWidth / 2, currentY + 3, { align: 'center' });
-      currentY += 8;
+      pdf.text(title, pageWidth / 2, currentY + 2, { align: 'center' });
+      currentY += 6;
       
       // Cabeçalho com logo e informações da ótica
-      const logoSize = 12;
+      const logoSize = 14;
       let logoX = margin;
       
       // Tentar carregar logo
@@ -611,41 +611,39 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       
       // Informações da ótica
       const infoX = logoX + logoSize + 4;
-      pdf.setFontSize(10);
+      pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       const tenantName = tenant.name.length > 25 ? tenant.name.substring(0, 25) + '...' : tenant.name;
-      pdf.text(tenantName, infoX, currentY + 3);
-      
+      pdf.text(tenantName, infoX, currentY + 4);
+
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
       const endereco = tenant.endereco ? tenant.endereco : 'Endereço não informado';
       const enderecoTruncated = endereco.length > 40 ? endereco.substring(0, 40) + '...' : endereco;
-      pdf.text(enderecoTruncated, infoX, currentY + 6);
-      pdf.text(`Tel: ${tenant.telefone || '(81) 98898-4547'}`, infoX, currentY + 9);
+      pdf.text(enderecoTruncated, infoX, currentY + 8);
+
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`Tel: ${tenant.telefone || '(81) 98898-4547'}`, infoX, currentY + 11);
       
       // N° OS com título alinhado com o nome da ótica
-      const osBoxWidth = 20;
-      const osBoxHeight = 10;
+      const osBoxWidth = 22;
+      const osBoxHeight = 11;
       const osBoxX = pageWidth - margin - osBoxWidth;
-      const osBoxY = currentY; // Posicionar na mesma altura do nome da ótica
+      const osBoxY = currentY + 1;
 
-      // Título "N° OS" alinhado com o nome da ótica
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('N° OS', osBoxX + osBoxWidth/2, currentY + 2, { align: 'center' });
-      
       // Caixa do número da OS
       pdf.setDrawColor(209, 213, 219);
       pdf.setFillColor(249, 250, 251);
       pdf.rect(osBoxX, osBoxY, osBoxWidth, osBoxHeight, 'FD');
-      
-      pdf.setFontSize(14);
+
+      pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(17, 24, 39);
-      pdf.text(nextNumOS.toString(), osBoxX + osBoxWidth/2, osBoxY + 6.5, { align: 'center' });
+      pdf.text(nextNumOS.toString(), osBoxX + osBoxWidth/2, osBoxY + 7.5, { align: 'center' });
       pdf.setTextColor(0, 0, 0);
-      
-      currentY += 18; // Espaço após logo/N° OS (bloco 1)
+
+      currentY += 20;
       
       // Função para formatar data no padrão brasileiro
       const formatDate = (dateString: string): string => {
@@ -673,50 +671,48 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         return phone; // Retorna original se não conseguir formatar
       };
 
-      // Datas na mesma linha com underline apenas nos valores
+      // Datas na mesma linha
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
-      
+
       // Data de Venda
       const dataVendaLabel = 'Data de Venda: ';
       const dataVendaValue = formatDate(formData.data_venda) || '';
       pdf.text(dataVendaLabel, margin, currentY);
       const labelWidth = pdf.getTextWidth(dataVendaLabel);
-      
-      // Valor da data com fonte maior
+
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(dataVendaValue, margin + labelWidth + 2, currentY); // +2mm de espaço padronizado
+      pdf.text(dataVendaValue, margin + labelWidth + 2, currentY);
       const valueWidth = pdf.getTextWidth(dataVendaValue);
-      // Linha apenas no valor
-      const dataVendaLineWidth = Math.max(valueWidth + 2, 25);
+      const dataVendaLineWidth = Math.max(valueWidth + 2, 28);
+      pdf.setDrawColor(156, 163, 175);
       pdf.line(margin + labelWidth + 2, currentY + 1, margin + labelWidth + 2 + dataVendaLineWidth, currentY + 1);
-      
+
       // Data de Entrega (lado direito)
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       const dataEntregaLabel = 'Data de Entrega: ';
       const dataEntregaValue = formatDate(formData.data_entrega) || '';
       const dataEntregaLabelWidth = pdf.getTextWidth(dataEntregaLabel);
-      
+
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       const dataEntregaValueWidth = pdf.getTextWidth(dataEntregaValue);
-      const dataEntregaLineWidth = Math.max(dataEntregaValueWidth + 2, 25);
-      const totalEntregaWidth = dataEntregaLabelWidth + 2 + dataEntregaLineWidth; // +2mm de espaço padronizado
+      const dataEntregaLineWidth = Math.max(dataEntregaValueWidth + 2, 28);
+      const totalEntregaWidth = dataEntregaLabelWidth + 2 + dataEntregaLineWidth;
       const dataEntregaX = pageWidth - margin - totalEntregaWidth;
-      
+
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       pdf.text(dataEntregaLabel, dataEntregaX, currentY);
-      
+
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY); // +2mm de espaço padronizado
-      // Linha apenas no valor
+      pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY);
       pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 1, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 1);
-      
-      currentY += 10; // Espaço após datas (bloco 2)
+
+      currentY += 12;
       
       if (type === 'laboratorio') {
         // Nome e Telefone na mesma linha
@@ -915,47 +911,41 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         }
         
       } else {
-        // PDF de Venda - seguindo o padrão do laboratório
+        // PDF de Venda - layout clean e profissional
 
-        // Nome
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        const nomeLabel = 'Nome: ';
+        // Nome (sem label, apenas o nome)
         const clienteNome = formData.cliente_nome.length > 50 ? formData.cliente_nome.substring(0, 50) + '...' : formData.cliente_nome;
-        const nomeLabelWidth = pdf.getTextWidth(nomeLabel);
-
-        pdf.text(nomeLabel, margin, currentY);
 
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY);
-        const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = pageWidth - 2 * margin - nomeLabelWidth - 2;
-        pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin + nomeLabelWidth + 2, currentY + 1, margin + nomeLabelWidth + 2 + nomeLineWidth, currentY + 1);
+        pdf.text(clienteNome, margin, currentY);
 
-        currentY += 8;
+        const nomeLineWidth = pageWidth - 2 * margin;
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(margin, currentY + 1, margin + nomeLineWidth, currentY + 1);
+
+        currentY += 10;
 
         // Valor Total e Forma de Pagamento na mesma linha
-        pdf.setFontSize(10);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
 
         const valorLabel = 'Valor Total: ';
-        const valorValue = formData.valor_total ? `R$ ${formData.valor_total}` : '';
+        const valorValue = formData.valor_total ? `R$ ${formData.valor_total}` : 'R$ 0,00';
         const valorLabelWidth = pdf.getTextWidth(valorLabel);
 
         pdf.text(valorLabel, margin, currentY);
 
-        pdf.setFontSize(11);
+        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(valorValue, margin + valorLabelWidth + 2, currentY);
+        pdf.text(valorValue, margin + valorLabelWidth + 1, currentY);
         const valorValueWidth = pdf.getTextWidth(valorValue);
-        const valorLineWidth = Math.max(valorValueWidth + 2, 30);
+        const valorLineWidth = Math.max(valorValueWidth + 2, 28);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin + valorLabelWidth + 2, currentY + 1, margin + valorLabelWidth + 2 + valorLineWidth, currentY + 1);
+        pdf.line(margin + valorLabelWidth + 1, currentY + 1, margin + valorLabelWidth + 1 + valorLineWidth, currentY + 1);
 
         // Forma de Pagamento (lado direito)
-        pdf.setFontSize(10);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
         const formaPagLabel = 'Forma de Pagamento: ';
         const formaPagamento = formData.forma_pagamento === 'dinheiro' ? 'Dinheiro' :
@@ -964,26 +954,26 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           formData.forma_pagamento === 'pix' ? 'PIX' : 'Outro';
         const formaPagLabelWidth = pdf.getTextWidth(formaPagLabel);
 
-        pdf.setFontSize(11);
+        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
         const formaPagValueWidth = pdf.getTextWidth(formaPagamento);
-        const formaPagLineWidth = Math.max(formaPagValueWidth + 2, 25);
-        const totalFormaPagWidth = formaPagLabelWidth + 2 + formaPagLineWidth;
+        const formaPagLineWidth = Math.max(formaPagValueWidth + 2, 22);
+        const totalFormaPagWidth = formaPagLabelWidth + 1 + formaPagLineWidth;
         const formaPagX = pageWidth - margin - totalFormaPagWidth;
 
-        pdf.setFontSize(10);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
         pdf.text(formaPagLabel, formaPagX, currentY);
 
-        pdf.setFontSize(11);
+        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(formaPagamento, formaPagX + formaPagLabelWidth + 2, currentY);
+        pdf.text(formaPagamento, formaPagX + formaPagLabelWidth + 1, currentY);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(formaPagX + formaPagLabelWidth + 2, currentY + 1, formaPagX + formaPagLabelWidth + 2 + formaPagLineWidth, currentY + 1);
+        pdf.line(formaPagX + formaPagLabelWidth + 1, currentY + 1, formaPagX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
 
-        currentY += 8;
+        currentY += 10;
 
-        // Parcelas (se for crédito) - mesmo padrão de linha
+        // Parcelas
         const parcelasLabel = 'Parcelas: ';
         let parcelasValue = '---';
 
@@ -991,62 +981,62 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           parcelasValue = formData.credito_parcelas;
         }
 
-        pdf.setFontSize(10);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
         const parcelasLabelWidth = pdf.getTextWidth(parcelasLabel);
 
         pdf.text(parcelasLabel, margin, currentY);
 
-        pdf.setFontSize(11);
+        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(parcelasValue, margin + parcelasLabelWidth + 2, currentY);
+        pdf.text(parcelasValue, margin + parcelasLabelWidth + 1, currentY);
         const parcelasValueWidth = pdf.getTextWidth(parcelasValue);
-        const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 20);
+        const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 18);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin + parcelasLabelWidth + 2, currentY + 1, margin + parcelasLabelWidth + 2 + parcelasLineWidth, currentY + 1);
+        pdf.line(margin + parcelasLabelWidth + 1, currentY + 1, margin + parcelasLabelWidth + 1 + parcelasLineWidth, currentY + 1);
 
-        currentY += 10;
+        currentY += 12;
 
         // Descrição do Pedido
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
-        const descLabel = 'Descrição do Pedido: ';
-        const descLabelWidth = pdf.getTextWidth(descLabel);
-        pdf.text(descLabel, margin, currentY);
+        pdf.text('Descrição do Pedido:', margin, currentY);
 
-        const descLineWidth = pageWidth - 2 * margin - descLabelWidth - 2;
+        currentY += 5;
+
+        const descLineWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin + descLabelWidth + 2, currentY + 1, margin + descLabelWidth + 2 + descLineWidth, currentY + 1);
+        pdf.line(margin, currentY, margin + descLineWidth, currentY);
 
         if (formData.descricao_pedido) {
-          pdf.setFontSize(11);
-          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
           const descPedido = formData.descricao_pedido.length > 80 ?
             formData.descricao_pedido.substring(0, 80) + '...' :
             formData.descricao_pedido;
-          pdf.text(descPedido, margin + descLabelWidth + 2, currentY);
+          pdf.text(descPedido, margin, currentY - 1);
         }
 
-        currentY += 8;
+        currentY += 10;
 
         // Observações
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
-        const obsLabel = 'Observações: ';
-        const obsLabelWidth = pdf.getTextWidth(obsLabel);
-        pdf.text(obsLabel, margin, currentY);
+        pdf.text('Observações:', margin, currentY);
 
-        const obsLineWidth = pageWidth - 2 * margin - obsLabelWidth - 2;
+        currentY += 5;
+
+        const obsLineWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin + obsLabelWidth + 2, currentY + 1, margin + obsLabelWidth + 2 + obsLineWidth, currentY + 1);
+        pdf.line(margin, currentY, margin + obsLineWidth, currentY);
 
         if (formData.observacao_cliente) {
-          pdf.setFontSize(11);
-          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
           const obsCliente = formData.observacao_cliente.length > 80 ?
             formData.observacao_cliente.substring(0, 80) + '...' :
             formData.observacao_cliente;
-          pdf.text(obsCliente, margin + obsLabelWidth + 2, currentY);
+          pdf.text(obsCliente, margin, currentY - 1);
         }
       }
 
