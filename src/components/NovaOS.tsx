@@ -743,6 +743,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           ['OE', formatValueWithSign(formData.esf_oe), formData.cil_oe || '', formData.eixo_oe || '', formData.dnp_oe || '', formData.altura_oe || '', '']
         ];
 
+        const tableStartY = currentY;
+
         autoTable(pdf, {
           startY: currentY,
           head: [['', 'Esférico', 'Cilíndrico', 'Eixo', 'DNP', 'Altura', 'Adição']],
@@ -781,14 +783,39 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
               const cellHeight = data.cell.height;
 
               if (data.row.index === 0) {
-                // Linha OD - remover linha inferior da célula de adição
+                // Linha OD - remover linha inferior da célula de adição completamente
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(cellX + 0.5, cellY + cellHeight - 0.25, cellWidth - 1, 0.5, 'F');
+                pdf.rect(cellX + 0.25, cellY + cellHeight - 0.5, cellWidth - 0.5, 1, 'F');
               } else if (data.row.index === 1) {
-                // Linha OE - limpar o conteúdo e remover linha superior
+                // Linha OE - limpar o conteúdo e remover linha superior completamente
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(cellX + 0.5, cellY, cellWidth - 1, 0.5, 'F');
+                pdf.rect(cellX + 0.25, cellY - 0.5, cellWidth - 0.5, 1, 'F');
               }
+            }
+          },
+          didDrawPage: (data) => {
+            // Após desenhar a tabela, adicionar o valor da adição centralizado verticalmente
+            if (adicaoValue) {
+              const headHeight = data.table.head[0].height;
+              const bodyHeight = data.table.body[0].height + data.table.body[1].height;
+
+              // Posição da coluna de adição (última coluna)
+              const adicaoColumnX = pageWidth - margin - 22;
+              const adicaoColumnWidth = 22;
+              const adicaoCenterX = adicaoColumnX + adicaoColumnWidth / 2;
+
+              // Posição Y centralizada entre OD e OE
+              const bodyCenterY = tableStartY + headHeight + bodyHeight / 2;
+
+              // Limpar o texto anterior da primeira linha
+              pdf.setFillColor(255, 255, 255);
+              pdf.rect(adicaoColumnX + 0.5, tableStartY + headHeight + 0.5, adicaoColumnWidth - 1, bodyHeight - 1, 'F');
+
+              // Desenhar o valor centralizado
+              pdf.setFontSize(11);
+              pdf.setFont('helvetica', 'bold');
+              pdf.setTextColor(0, 0, 0);
+              pdf.text(adicaoValue, adicaoCenterX, bodyCenterY + 1, { align: 'center' });
             }
           }
         });
