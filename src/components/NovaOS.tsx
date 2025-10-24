@@ -586,9 +586,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
-      const endereco = tenant.endereco ? 
-        `${tenant.endereco}${tenant.numero ? `, ${tenant.numero}` : ''}` : 
-        'Endereço não informado';
+      const endereco = tenant.endereco ? tenant.endereco : 'Endereço não informado';
       const enderecoTruncated = endereco.length > 40 ? endereco.substring(0, 40) + '...' : endereco;
       pdf.text(enderecoTruncated, infoX, currentY + 6);
       pdf.text(`Tel: ${tenant.telefone || '(81) 98898-4547'}`, infoX, currentY + 9);
@@ -1075,10 +1073,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{tenant.name}</h2>
                   <p className="text-gray-600">
-                    {tenant.endereco ?
-                      `${tenant.endereco}${tenant.numero ? `, ${tenant.numero}` : ''}`
-                      : 'Endereço não informado'
-                    }
+                    {tenant.endereco || 'Endereço não informado'}
                   </p>
                   <p className="text-gray-600">Tel: {tenant.telefone || '(81) 98898-4547'}</p>
                 </div>
