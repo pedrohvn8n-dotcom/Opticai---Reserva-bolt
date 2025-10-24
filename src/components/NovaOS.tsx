@@ -774,17 +774,21 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           margin: { left: margin, right: margin },
           didDrawCell: (data) => {
             // Mesclar a célula de Adição nas duas linhas (OD e OE)
-            if (data.column.index === 6 && data.row.index === 0) {
-              // Desenhar linha vertical apenas do lado esquerdo da célula de adição
-              pdf.setDrawColor(209, 213, 219);
-              pdf.setLineWidth(0.5);
+            if (data.column.index === 6) {
               const cellY = data.cell.y;
               const cellX = data.cell.x;
-              const cellHeight = data.cell.height * 2; // Altura de 2 células
+              const cellWidth = data.cell.width;
+              const cellHeight = data.cell.height;
 
-              // Remover linha horizontal entre OD e OE na coluna Adição
-              pdf.setFillColor(255, 255, 255);
-              pdf.rect(cellX, cellY + data.cell.height - 0.25, data.cell.width, 0.5, 'F');
+              if (data.row.index === 0) {
+                // Linha OD - remover linha inferior da célula de adição
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(cellX + 0.5, cellY + cellHeight - 0.25, cellWidth - 1, 0.5, 'F');
+              } else if (data.row.index === 1) {
+                // Linha OE - limpar o conteúdo e remover linha superior
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(cellX + 0.5, cellY, cellWidth - 1, 0.5, 'F');
+              }
             }
           }
         });
@@ -834,7 +838,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(descricaoLente, textX, descricaoY);
         }
 
-        currentY += 10; // Espaço antes da observação
+        currentY += 14; // Espaço antes da observação (aumentado)
         
         // Observação com underline
         pdf.setFontSize(9);
