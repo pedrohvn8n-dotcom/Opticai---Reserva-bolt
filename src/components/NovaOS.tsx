@@ -883,121 +883,138 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         }
         
       } else {
-        // PDF de Venda
-        const dateBoxHeight = 8; // Definir altura das caixas
-        
+        // PDF de Venda - seguindo o padrão do laboratório
+
+        // Nome
         pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Dados do Cliente', margin, currentY);
-        currentY += 5;
-        
-        // Nome e Telefone
-        pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Nome do Cliente', margin + 25, currentY);
-        pdf.text('Telefone', margin + 80, currentY);
-        
-        currentY += 3;
-        
-        pdf.setDrawColor(209, 213, 219);
-        pdf.setFillColor(249, 250, 251);
-        pdf.rect(margin, currentY, 50, 8, 'FD');
-        pdf.rect(margin + 55, currentY, 40, 8, 'FD');
-        
-        pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
-        const clienteNome = formData.cliente_nome.length > 20 ? formData.cliente_nome.substring(0, 20) + '...' : formData.cliente_nome;
-        pdf.text(clienteNome, margin + 25, currentY + 5, { align: 'center' });
-        pdf.text(formData.telefone_cliente || '', margin + 75, currentY + 5, { align: 'center' });
-        
-        currentY += 12;
-        
-        // CPF, Data Nascimento, Endereço
-        pdf.setFontSize(9);
+        const nomeLabel = 'Nome: ';
+        const clienteNome = formData.cliente_nome.length > 50 ? formData.cliente_nome.substring(0, 50) + '...' : formData.cliente_nome;
+        const nomeLabelWidth = pdf.getTextWidth(nomeLabel);
+
+        pdf.text(nomeLabel, margin, currentY);
+
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('CPF', margin + 15, currentY);
-        pdf.text('Data Nascimento', margin + 50, currentY);
-        pdf.text('Endereço', margin + 95, currentY);
-        
-        currentY += 3;
-        
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(margin, currentY, 30, 8, 'FD');
-        pdf.rect(margin + 35, currentY, 30, 8, 'FD');
-        pdf.rect(margin + 70, currentY, 40, 8, 'FD');
-        
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(formData.cpf || '', margin + 15, currentY + 5, { align: 'center' });
-        pdf.text(formatDate(formData.data_nascimento) || '', margin + 50, currentY + 5, { align: 'center' });
-        const endereco = formData.endereco && formData.endereco.length > 15 ? 
-          formData.endereco.substring(0, 15) + '...' : formData.endereco || '';
-        pdf.text(endereco, margin + 90, currentY + 5, { align: 'center' });
-        
-        currentY += 15;
-        
-        // Dados Financeiros
+        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY);
+        const nomeValueWidth = pdf.getTextWidth(clienteNome);
+        const nomeLineWidth = pageWidth - 2 * margin - nomeLabelWidth - 2;
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(margin + nomeLabelWidth + 2, currentY + 1, margin + nomeLabelWidth + 2 + nomeLineWidth, currentY + 1);
+
+        currentY += 8;
+
+        // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Dados Financeiros', margin, currentY);
-        currentY += 5;
-        
-        pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Valor Total', margin + 20, currentY);
-        pdf.text('Forma Pagamento', margin + 70, currentY);
-        if (formData.forma_pagamento === 'credito') {
-          pdf.text('Parcelas', margin + 115, currentY);
-        }
-        
-        currentY += 3;
-        
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(margin, currentY, 40, 8, 'FD');
-        pdf.rect(margin + 45, currentY, 40, 8, 'FD');
-        if (formData.forma_pagamento === 'credito') {
-          pdf.rect(margin + 90, currentY, 20, 8, 'FD');
-        }
-        
-        pdf.setFontSize(9);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(formData.valor_total ? `R$ ${formData.valor_total}` : '', margin + 20, currentY + 5, { align: 'center' });
-        
-        const formaPagamento = formData.forma_pagamento === 'dinheiro' ? 'Dinheiro' : 
+
+        const valorLabel = 'Valor Total: ';
+        const valorValue = formData.valor_total ? `R$ ${formData.valor_total}` : '';
+        const valorLabelWidth = pdf.getTextWidth(valorLabel);
+
+        pdf.text(valorLabel, margin, currentY);
+
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(valorValue, margin + valorLabelWidth + 2, currentY);
+        const valorValueWidth = pdf.getTextWidth(valorValue);
+        const valorLineWidth = Math.max(valorValueWidth + 2, 30);
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(margin + valorLabelWidth + 2, currentY + 1, margin + valorLabelWidth + 2 + valorLineWidth, currentY + 1);
+
+        // Forma de Pagamento (lado direito)
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        const formaPagLabel = 'Forma de Pagamento: ';
+        const formaPagamento = formData.forma_pagamento === 'dinheiro' ? 'Dinheiro' :
           formData.forma_pagamento === 'debito' ? 'Débito' :
           formData.forma_pagamento === 'credito' ? 'Crédito' :
           formData.forma_pagamento === 'pix' ? 'PIX' : 'Outro';
-        pdf.text(formaPagamento, margin + 65, currentY + 5, { align: 'center' });
-        
-        if (formData.forma_pagamento === 'credito') {
-          pdf.text(formData.credito_parcelas || '', margin + 100, currentY + 5, { align: 'center' });
-        }
-        
-        currentY += 15;
-        
-        // Descrição do Pedido e Observação do Cliente
-        pdf.setFontSize(9);
+        const formaPagLabelWidth = pdf.getTextWidth(formaPagLabel);
+
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('Descrição do Pedido', margin + 30, currentY);
-        pdf.text('Observação do Cliente', margin + 95, currentY);
-        
-        currentY += 3;
-        
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(margin, currentY, 60, 10, 'FD');
-        pdf.rect(margin + 65, currentY, 60, 10, 'FD');
-        
-        pdf.setFontSize(8);
+        const formaPagValueWidth = pdf.getTextWidth(formaPagamento);
+        const formaPagLineWidth = Math.max(formaPagValueWidth + 2, 25);
+        const totalFormaPagWidth = formaPagLabelWidth + 2 + formaPagLineWidth;
+        const formaPagX = pageWidth - margin - totalFormaPagWidth;
+
+        pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
-        
-        if (formData.descricao_pedido) {
-          const descricaoLines = pdf.splitTextToSize(formData.descricao_pedido, 56);
-          pdf.text(descricaoLines.slice(0, 2), margin + 2, currentY + 4);
+        pdf.text(formaPagLabel, formaPagX, currentY);
+
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(formaPagamento, formaPagX + formaPagLabelWidth + 2, currentY);
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(formaPagX + formaPagLabelWidth + 2, currentY + 1, formaPagX + formaPagLabelWidth + 2 + formaPagLineWidth, currentY + 1);
+
+        currentY += 8;
+
+        // Parcelas (se for crédito) - mesmo padrão de linha
+        const parcelasLabel = 'Parcelas: ';
+        let parcelasValue = '---';
+
+        if (formData.forma_pagamento === 'credito' && formData.credito_parcelas) {
+          parcelasValue = formData.credito_parcelas;
         }
-        
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        const parcelasLabelWidth = pdf.getTextWidth(parcelasLabel);
+
+        pdf.text(parcelasLabel, margin, currentY);
+
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(parcelasValue, margin + parcelasLabelWidth + 2, currentY);
+        const parcelasValueWidth = pdf.getTextWidth(parcelasValue);
+        const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 20);
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(margin + parcelasLabelWidth + 2, currentY + 1, margin + parcelasLabelWidth + 2 + parcelasLineWidth, currentY + 1);
+
+        currentY += 10;
+
+        // Descrição do Pedido
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        const descLabel = 'Descrição do Pedido: ';
+        const descLabelWidth = pdf.getTextWidth(descLabel);
+        pdf.text(descLabel, margin, currentY);
+
+        const descLineWidth = pageWidth - 2 * margin - descLabelWidth - 2;
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(margin + descLabelWidth + 2, currentY + 1, margin + descLabelWidth + 2 + descLineWidth, currentY + 1);
+
+        if (formData.descricao_pedido) {
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          const descPedido = formData.descricao_pedido.length > 80 ?
+            formData.descricao_pedido.substring(0, 80) + '...' :
+            formData.descricao_pedido;
+          pdf.text(descPedido, margin + descLabelWidth + 2, currentY);
+        }
+
+        currentY += 8;
+
+        // Observações
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        const obsLabel = 'Observações: ';
+        const obsLabelWidth = pdf.getTextWidth(obsLabel);
+        pdf.text(obsLabel, margin, currentY);
+
+        const obsLineWidth = pageWidth - 2 * margin - obsLabelWidth - 2;
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(margin + obsLabelWidth + 2, currentY + 1, margin + obsLabelWidth + 2 + obsLineWidth, currentY + 1);
+
         if (formData.observacao_cliente) {
-          const observacaoLines = pdf.splitTextToSize(formData.observacao_cliente, 56);
-          pdf.text(observacaoLines.slice(0, 2), margin + 67, currentY + 4);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          const obsCliente = formData.observacao_cliente.length > 80 ?
+            formData.observacao_cliente.substring(0, 80) + '...' :
+            formData.observacao_cliente;
+          pdf.text(obsCliente, margin + obsLabelWidth + 2, currentY);
         }
       }
 
