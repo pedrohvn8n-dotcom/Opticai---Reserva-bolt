@@ -1629,7 +1629,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Valor Total</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="20"
                   value={formData.valor_total}
                   onChange={(e) => handleInputChange('valor_total', e.target.value)}
                   placeholder="0.00"
