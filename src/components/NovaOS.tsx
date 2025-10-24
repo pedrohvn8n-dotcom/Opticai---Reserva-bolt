@@ -228,9 +228,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         ...prev,
         [field]: formatted
       }));
-      
+
       // Validação do telefone
       validatePhone(formatted);
+    } else if (field === 'valor_total') {
+      // Formatação automática de moeda
+      const formatted = formatCurrencyInput(value);
+      setFormData(prev => ({
+        ...prev,
+        [field]: formatted
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -292,6 +299,31 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   // Função para extrair apenas os números (alias para compatibilidade)
   const extractNumbers = (formattedPhone: string): string => {
     return formattedPhone.replace(/\D/g, '');
+  };
+
+  // Funções de formatação de moeda
+  const formatCurrencyInput = (value: string): string => {
+    // Remove tudo exceto números
+    const numbers = value.replace(/\D/g, '');
+
+    if (!numbers) return '';
+
+    // Converte para número e divide por 100 para ter os centavos
+    const amount = parseInt(numbers) / 100;
+
+    // Formata como moeda brasileira
+    return amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  const extractCurrencyValue = (formattedValue: string): string => {
+    // Remove formatação e retorna apenas números com ponto decimal
+    const numbers = formattedValue.replace(/\D/g, '');
+    if (!numbers) return '';
+    const amount = parseInt(numbers) / 100;
+    return amount.toString();
   };
 
   // Validação do telefone
@@ -450,7 +482,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         data_nascimento: formData.data_nascimento || null,
         data_venda: formData.data_venda || null,
         data_entrega: formData.data_entrega || null,
-        valor_total: formData.valor_total ? parseFloat(formData.valor_total) : null,
+        valor_total: formData.valor_total ? parseFloat(extractCurrencyValue(formData.valor_total)) : null,
         forma_pagamento: formData.forma_pagamento || null,
         credito_parcelas: formData.credito_parcelas ? parseInt(formData.credito_parcelas) : null,
         esf_od: formData.esf_od || null,
@@ -1627,14 +1659,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Valor Total</label>
-                <input
-                  type="number"
-                  step="20"
-                  value={formData.valor_total}
-                  onChange={(e) => handleInputChange('valor_total', e.target.value)}
-                  placeholder="0.00"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">R$</span>
+                  <input
+                    type="text"
+                    value={formData.valor_total}
+                    onChange={(e) => handleInputChange('valor_total', e.target.value)}
+                    placeholder="0,00"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Forma de Pagamento</label>
