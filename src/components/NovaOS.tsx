@@ -913,16 +913,23 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       } else {
         // PDF de Venda - layout clean e profissional
 
-        // Nome (sem label, apenas o nome)
+        // Nome
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Nome:', margin, currentY);
+
+        currentY += 5;
+
         const clienteNome = formData.cliente_nome.length > 50 ? formData.cliente_nome.substring(0, 50) + '...' : formData.cliente_nome;
-
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(clienteNome, margin, currentY);
-
         const nomeLineWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin, currentY + 1, margin + nomeLineWidth, currentY + 1);
+        pdf.line(margin, currentY, margin + nomeLineWidth, currentY);
+
+        if (clienteNome) {
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(clienteNome, margin, currentY - 1);
+        }
 
         currentY += 10;
 
@@ -1002,7 +1009,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'normal');
         pdf.text('Descrição do Pedido:', margin, currentY);
 
-        currentY += 5;
+        currentY += 6;
 
         const descLineWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(156, 163, 175);
@@ -1024,7 +1031,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'normal');
         pdf.text('Observações:', margin, currentY);
 
-        currentY += 5;
+        currentY += 6;
 
         const obsLineWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(156, 163, 175);
