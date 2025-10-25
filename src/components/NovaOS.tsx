@@ -733,11 +733,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         // Valor do nome com fonte maior
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY); // Espaço padronizado como no campo Nome
+        pdf.text(clienteNome, margin + nomeLabelWidth + 8, currentY); // Espaço aumentado
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
         const nomeAreaWidth = (pageWidth - 2 * margin) * 0.60;
         // Linha apenas no valor
-        pdf.line(margin + nomeLabelWidth + 2, currentY + 1, margin + nomeLabelWidth + 2 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 2), currentY + 1);
+        pdf.line(margin + nomeLabelWidth + 8, currentY + 1, margin + nomeLabelWidth + 8 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 8), currentY + 1);
         
         // Telefone com espaçamento padronizado (ajustado para mesmo padrão)
         const telefoneLabel = 'Telefone: ';
@@ -925,9 +925,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 4;
 
         const clienteNome = formData.cliente_nome || '';
-        const nomeStartX = margin + 8; // CORRIGIDO: começar ainda mais à direita
+        const nomeStartX = margin + 16; // CORRIGIDO: começar ainda mais à direita
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 8);
+        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 16);
         pdf.setDrawColor(156, 163, 175);
         pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
 
