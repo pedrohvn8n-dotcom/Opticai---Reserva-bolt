@@ -20,6 +20,7 @@ interface FormData {
   valor_total: string;
   forma_pagamento: string;
   credito_parcelas: string;
+  status_pagamento: string;
   esf_od: string;
   cil_od: string;
   eixo_od: string;
@@ -50,6 +51,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     valor_total: '',
     forma_pagamento: 'dinheiro',
     credito_parcelas: '',
+    status_pagamento: 'a_pagar_entrega',
     esf_od: '',
     cil_od: '',
     eixo_od: '',
@@ -485,6 +487,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         valor_total: formData.valor_total ? parseFloat(extractCurrencyValue(formData.valor_total)) : null,
         forma_pagamento: formData.forma_pagamento || null,
         credito_parcelas: formData.credito_parcelas ? parseInt(formData.credito_parcelas) : null,
+        status_pagamento: formData.status_pagamento || null,
         esf_od: formData.esf_od || null,
         cil_od: formData.cil_od || null,
         eixo_od: formData.eixo_od || null,
@@ -999,9 +1002,42 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'bold');
         pdf.text(parcelasValue, margin + parcelasLabelWidth + 1, currentY);
         const parcelasValueWidth = pdf.getTextWidth(parcelasValue);
-        const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 18);
+        const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 14);
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + parcelasLabelWidth + 1, currentY + 1, margin + parcelasLabelWidth + 1 + parcelasLineWidth, currentY + 1);
+
+        // Status do Pagamento (lado direito)
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        const statusPagLabel = 'Status: ';
+        let statusPagamento = 'A pagar na entrega';
+
+        if (formData.status_pagamento === 'pago') {
+          statusPagamento = 'Pago';
+        } else if (formData.status_pagamento === 'a_pagar_entrega') {
+          statusPagamento = 'A pagar na entrega';
+        } else if (formData.status_pagamento) {
+          statusPagamento = formData.status_pagamento;
+        }
+
+        const statusPagLabelWidth = pdf.getTextWidth(statusPagLabel);
+
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        const statusPagValueWidth = pdf.getTextWidth(statusPagamento);
+        const statusPagLineWidth = Math.max(statusPagValueWidth + 2, 30);
+        const totalStatusPagWidth = statusPagLabelWidth + 1 + statusPagLineWidth;
+        const statusPagX = pageWidth - margin - totalStatusPagWidth;
+
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(statusPagLabel, statusPagX, currentY);
+
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(statusPagamento, statusPagX + statusPagLabelWidth + 1, currentY);
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(statusPagX + statusPagLabelWidth + 1, currentY + 1, statusPagX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
         currentY += 12;
 
@@ -1692,6 +1728,33 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     placeholder="1"
                     min="1"
                     max="12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status do Pagamento</label>
+                <select
+                  value={formData.status_pagamento}
+                  onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="pago">Pago</option>
+                  <option value="a_pagar_entrega">A pagar na entrega</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              {formData.status_pagamento === 'outro' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Especificar Status</label>
+                  <input
+                    type="text"
+                    value={formData.status_pagamento !== 'pago' && formData.status_pagamento !== 'a_pagar_entrega' ? formData.status_pagamento : ''}
+                    onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                    placeholder="Ex: Pagamento parcial, Consignado, etc"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
