@@ -712,7 +712,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY);
       pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 1, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 1);
 
-      currentY += 14;
+      currentY += 12;
       
       if (type === 'laboratorio') {
         // Nome e Telefone na mesma linha
@@ -921,15 +921,14 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 5;
 
         const clienteNome = formData.cliente_nome.length > 50 ? formData.cliente_nome.substring(0, 50) + '...' : formData.cliente_nome;
-        const nomeLineStartX = margin + 3;
-        const nomeLineWidth = pageWidth - 2 * margin - 3;
+        const nomeLineWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(nomeLineStartX, currentY, nomeLineStartX + nomeLineWidth, currentY);
+        pdf.line(margin, currentY, margin + nomeLineWidth, currentY);
 
         if (clienteNome) {
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(clienteNome, nomeLineStartX + 1, currentY - 1);
+          pdf.text(clienteNome, margin, currentY - 1);
         }
 
         currentY += 10;
