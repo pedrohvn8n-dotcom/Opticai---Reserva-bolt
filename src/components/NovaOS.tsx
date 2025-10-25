@@ -688,7 +688,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFont('helvetica', 'bold');
       pdf.text(dataVendaValue, margin + labelWidth + 2, currentY);
       const valueWidth = pdf.getTextWidth(dataVendaValue);
-      const dataVendaLineWidth = Math.max(valueWidth + 2, 28);
+      const dataVendaLineWidth = dataVendaValue ? valueWidth : 28;
       pdf.setDrawColor(156, 163, 175);
       pdf.line(margin + labelWidth + 2, currentY + 1, margin + labelWidth + 2 + dataVendaLineWidth, currentY + 1);
 
@@ -702,7 +702,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       const dataEntregaValueWidth = pdf.getTextWidth(dataEntregaValue);
-      const dataEntregaLineWidth = Math.max(dataEntregaValueWidth + 2, 28);
+      const dataEntregaLineWidth = dataEntregaValue ? dataEntregaValueWidth : 28;
       const totalEntregaWidth = dataEntregaLabelWidth + 2 + dataEntregaLineWidth;
       const dataEntregaX = pageWidth - margin - totalEntregaWidth;
 
