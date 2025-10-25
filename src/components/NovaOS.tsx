@@ -1045,9 +1045,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
 
-        currentY += boxHeight + 3; // CORRIGIDO: reduzido de 4 para 3
+        currentY += boxHeight + 5; // AUMENTADO: descer o campo Observações (era 3, agora 5)
 
-        // Observações - SUBINDO a posição
+        // Observações - DESCENDO a posição
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Observações:', margin, currentY);
