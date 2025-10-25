@@ -20,6 +20,7 @@ interface FormData {
   valor_total: string;
   forma_pagamento: string;
   credito_parcelas: string;
+  status_pagamento: string;
   esf_od: string;
   cil_od: string;
   eixo_od: string;
@@ -50,6 +51,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     valor_total: '',
     forma_pagamento: 'dinheiro',
     credito_parcelas: '',
+    status_pagamento: 'Pago',
     esf_od: '',
     cil_od: '',
     eixo_od: '',
@@ -485,6 +487,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         valor_total: formData.valor_total ? parseFloat(extractCurrencyValue(formData.valor_total)) : null,
         forma_pagamento: formData.forma_pagamento || null,
         credito_parcelas: formData.credito_parcelas ? parseInt(formData.credito_parcelas) : null,
+        status_pagamento: formData.status_pagamento || null,
         esf_od: formData.esf_od || null,
         cil_od: formData.cil_od || null,
         eixo_od: formData.eixo_od || null,
@@ -980,7 +983,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 
         currentY += 10;
 
-        // Parcelas
+        // Parcelas e Status do Pagamento na mesma linha
         const parcelasLabel = 'Parcelas: ';
         let parcelasValue = '---';
 
@@ -1001,6 +1004,28 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 18);
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + parcelasLabelWidth + 1, currentY + 1, margin + parcelasLabelWidth + 1 + parcelasLineWidth, currentY + 1);
+
+        // Status do Pagamento (lado direito)
+        const statusPagLabel = 'Status do Pagamento: ';
+        const statusPagValue = formData.status_pagamento || 'Pago';
+        const statusPagLabelWidth = pdf.getTextWidth(statusPagLabel);
+
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        const statusPagValueWidth = pdf.getTextWidth(statusPagValue);
+        const statusPagLineWidth = Math.max(statusPagValueWidth + 2, 25);
+        const totalStatusPagWidth = statusPagLabelWidth + 1 + statusPagLineWidth;
+        const statusPagX = pageWidth - margin - totalStatusPagWidth;
+
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(statusPagLabel, statusPagX, currentY);
+
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(statusPagValue, statusPagX + statusPagLabelWidth + 1, currentY);
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(statusPagX + statusPagLabelWidth + 1, currentY + 1, statusPagX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
         currentY += 12;
 
@@ -1652,8 +1677,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           {/* Dados Financeiros */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Dados Financeiros</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Valor Total</label>
                 <div className="relative">
@@ -1695,6 +1720,27 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   />
                 </div>
               )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status do Pagamento</label>
+                <select
+                  value={formData.status_pagamento}
+                  onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Pago">Pago</option>
+                  <option value="A pagar na entrega">A pagar na entrega</option>
+                  <option value="outro">Outro</option>
+                </select>
+                {formData.status_pagamento === 'outro' && (
+                  <input
+                    type="text"
+                    value={formData.status_pagamento === 'outro' ? '' : formData.status_pagamento}
+                    onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                    placeholder="Digite o status do pagamento"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  />
+                )}
+              </div>
             </div>
           </div>
 
