@@ -922,7 +922,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'normal');
         pdf.text('Nome:', margin, currentY);
 
-        currentY += 4;
+        currentY += 3.5;
 
         const clienteNome = formData.cliente_nome || '';
         const nomeStartX = margin + 12; // CORRIGIDO: começar à direita
@@ -937,7 +937,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(clienteNome, nomeStartX, currentY - 1);
         }
 
-        currentY += 6;
+        currentY += 5;
 
         // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
@@ -979,7 +979,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + formaPagLabelWidth + 1, currentY + 1, rightColumnX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
 
-        currentY += 6;
+        currentY += 5;
 
         // Parcelas e Status do Pagamento na mesma linha
         const parcelasLabel = 'Parcelas: ';
@@ -1020,7 +1020,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + statusPagLabelWidth + 1, currentY + 1, rightColumnX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
-        currentY += 6; // CORRIGIDO: subir os campos
+        currentY += 5; // CORRIGIDO: subir os campos
 
         // Descrição do Pedido - SUBINDO a posição
         pdf.setFontSize(9);
@@ -1043,9 +1043,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
 
-        currentY += boxHeight + 2; // CORRIGIDO: subir os campos
+        currentY += boxHeight + 4; // CORRIGIDO: manter observações no mesmo lugar
 
-        // Observações - SUBINDO a posição
+        // Observações - mantida na posição original
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Observações:', margin, currentY);
