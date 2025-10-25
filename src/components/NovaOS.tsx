@@ -916,7 +916,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 } else {
         // PDF de Venda - layout clean e profissional
 
-        // Nome - linha começando ainda mais à direita
+        // Nome - linha começando mais à direita ainda
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         pdf.text('Nome:', margin, currentY);
@@ -924,9 +924,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 4;
 
         const clienteNome = formData.cliente_nome || '';
-        const nomeStartX = margin + 6; // Começar mais à direita ainda
+        const nomeStartX = margin + 8; // CORRIGIDO: começar ainda mais à direita
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 6); // Linha mais longa
+        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 8);
         pdf.setDrawColor(156, 163, 175);
         pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
 
@@ -1019,9 +1019,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + statusPagLabelWidth + 1, currentY + 1, rightColumnX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
-        currentY += 9;
+        currentY += 7; // CORRIGIDO: reduzido de 9 para 7 - subir os campos
 
-        // Descrição do Pedido - subindo a posição, mantendo tamanho
+        // Descrição do Pedido - SUBINDO a posição
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Descrição do Pedido:', margin, currentY);
@@ -1042,9 +1042,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
 
-        currentY += boxHeight + 4; // Espaço maior antes de Observações
+        currentY += boxHeight + 3; // CORRIGIDO: reduzido de 4 para 3
 
-        // Observações - mantendo posição
+        // Observações - SUBINDO a posição
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Observações:', margin, currentY);
