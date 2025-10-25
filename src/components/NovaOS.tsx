@@ -683,11 +683,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(dataVendaValue, margin + labelWidth + 1, currentY);
+      pdf.text(dataVendaValue, margin + labelWidth + 2, currentY);
       const valueWidth = pdf.getTextWidth(dataVendaValue);
       const dataVendaLineWidth = valueWidth + 1;
       pdf.setDrawColor(156, 163, 175);
-      pdf.line(margin + labelWidth + 1, currentY + 0.5, margin + labelWidth + 1 + dataVendaLineWidth, currentY + 0.5);
+      pdf.line(margin + labelWidth + 2, currentY + 0.5, margin + labelWidth + 2 + dataVendaLineWidth, currentY + 0.5);
 
       // Data de Entrega (lado direito)
       pdf.setFontSize(10);
@@ -700,7 +700,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFont('helvetica', 'bold');
       const dataEntregaValueWidth = pdf.getTextWidth(dataEntregaValue);
       const dataEntregaLineWidth = dataEntregaValueWidth + 1;
-      const totalEntregaWidth = dataEntregaLabelWidth + 1 + dataEntregaLineWidth;
+      const totalEntregaWidth = dataEntregaLabelWidth + 2 + dataEntregaLineWidth;
       const dataEntregaX = pageWidth - margin - totalEntregaWidth;
 
       pdf.setFontSize(10);
@@ -709,8 +709,8 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 1, currentY);
-      pdf.line(dataEntregaX + dataEntregaLabelWidth + 1, currentY + 0.5, dataEntregaX + dataEntregaLabelWidth + 1 + dataEntregaLineWidth, currentY + 0.5);
+      pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY);
+      pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 0.5, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 0.5);
 
       currentY += 10;
       
