@@ -1678,7 +1678,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Dados Financeiros</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Valor Total</label>
                 <div className="relative">
@@ -1720,27 +1720,28 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                   />
                 </div>
               )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status do Pagamento</label>
-                <select
-                  value={formData.status_pagamento}
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status do Pagamento</label>
+              <select
+                value={formData.status_pagamento}
+                onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Pago">Pago</option>
+                <option value="A pagar na entrega">A pagar na entrega</option>
+                <option value="outro">Outro</option>
+              </select>
+              {formData.status_pagamento === 'outro' && (
+                <input
+                  type="text"
+                  value={formData.status_pagamento === 'outro' ? '' : formData.status_pagamento}
                   onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="Pago">Pago</option>
-                  <option value="A pagar na entrega">A pagar na entrega</option>
-                  <option value="outro">Outro</option>
-                </select>
-                {formData.status_pagamento === 'outro' && (
-                  <input
-                    type="text"
-                    value={formData.status_pagamento === 'outro' ? '' : formData.status_pagamento}
-                    onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
-                    placeholder="Digite o status do pagamento"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
-                  />
-                )}
-              </div>
+                  placeholder="Digite o status do pagamento"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                />
+              )}
             </div>
           </div>
 
