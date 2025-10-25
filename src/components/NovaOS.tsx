@@ -920,18 +920,18 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         // Nome - agora com linha EMBAIXO como os outros campos
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
-        
+
         const nomeLabel = 'Nome: ';
         const nomeLabelWidth = pdf.getTextWidth(nomeLabel);
         pdf.text(nomeLabel, margin, currentY);
-        
+
         const clienteNome = formData.cliente_nome || '';
         const nomeLineWidth = pageWidth - 2 * margin - nomeLabelWidth - 2;
-        
+
         // Desenhar a linha embaixo
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + nomeLabelWidth + 1, currentY + 1, margin + nomeLabelWidth + 1 + nomeLineWidth, currentY + 1);
-        
+
         // Texto do nome (se houver)
         if (clienteNome) {
           pdf.setFontSize(11);
@@ -939,7 +939,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(clienteNome, margin + nomeLabelWidth + 1, currentY);
         }
 
-        currentY += 5;
+        currentY += 8;
 
         // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
