@@ -733,11 +733,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         // Valor do nome com fonte maior
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(clienteNome, margin + nomeLabelWidth + 8, currentY); // Espaço aumentado
+        pdf.text(clienteNome, margin + nomeLabelWidth + 6, currentY); // Espaço ajustado
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
         const nomeAreaWidth = (pageWidth - 2 * margin) * 0.60;
         // Linha apenas no valor
-        pdf.line(margin + nomeLabelWidth + 8, currentY + 1, margin + nomeLabelWidth + 8 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 8), currentY + 1);
+        pdf.line(margin + nomeLabelWidth + 6, currentY + 1, margin + nomeLabelWidth + 6 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 6), currentY + 1);
         
         // Telefone com espaçamento padronizado (ajustado para mesmo padrão)
         const telefoneLabel = 'Telefone: ';
@@ -925,9 +925,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 4;
 
         const clienteNome = formData.cliente_nome || '';
-        const nomeStartX = margin + 16; // CORRIGIDO: começar ainda mais à direita
+        const nomeStartX = margin + 12; // CORRIGIDO: começar à direita
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 16);
+        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 12);
         pdf.setDrawColor(156, 163, 175);
         pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
 
@@ -937,7 +937,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(clienteNome, nomeStartX, currentY - 1);
         }
 
-        currentY += 8;
+        currentY += 6;
 
         // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
@@ -979,7 +979,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + formaPagLabelWidth + 1, currentY + 1, rightColumnX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
 
-        currentY += 7;
+        currentY += 6;
 
         // Parcelas e Status do Pagamento na mesma linha
         const parcelasLabel = 'Parcelas: ';
@@ -1020,7 +1020,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + statusPagLabelWidth + 1, currentY + 1, rightColumnX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
-        currentY += 7; // CORRIGIDO: reduzido de 9 para 7 - subir os campos
+        currentY += 6; // CORRIGIDO: subir os campos
 
         // Descrição do Pedido - SUBINDO a posição
         pdf.setFontSize(9);
@@ -1043,7 +1043,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
 
-        currentY += boxHeight + 3; // CORRIGIDO: reduzido de 4 para 3
+        currentY += boxHeight + 2; // CORRIGIDO: subir os campos
 
         // Observações - SUBINDO a posição
         pdf.setFontSize(9);
