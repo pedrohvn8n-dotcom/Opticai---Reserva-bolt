@@ -913,31 +913,33 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(formData.observacao, margin + obsLabelWidth + 2, currentY);
         }
         
-      } else {
+} else {
         // PDF de Venda - layout clean e profissional
 
-        // Nome
+        // Nome - linha começando mais à direita ainda
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         pdf.text('Nome:', margin, currentY);
 
-        currentY += 5;
+        currentY += 4;
 
-        const clienteNome = formData.cliente_nome.length > 50 ? formData.cliente_nome.substring(0, 50) + '...' : formData.cliente_nome;
-        const nomeLineWidth = pageWidth - 2 * margin;
+        const clienteNome = formData.cliente_nome || '';
+        const nomeStartX = margin + 8; // CORRIGIDO: começar ainda mais à direita
+        const nomeValueWidth = pdf.getTextWidth(clienteNome);
+        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 8);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin, currentY, margin + nomeLineWidth, currentY);
+        pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
 
         if (clienteNome) {
-          pdf.setFontSize(10);
+          pdf.setFontSize(11);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(clienteNome, margin, currentY - 1);
+          pdf.text(clienteNome, nomeStartX, currentY - 1);
         }
 
-        currentY += 10;
+        currentY += 8;
 
         // Valor Total e Forma de Pagamento na mesma linha
-        pdf.setFontSize(11);
+        pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
 
         const valorLabel = 'Valor Total: ';
@@ -950,12 +952,14 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'bold');
         pdf.text(valorValue, margin + valorLabelWidth + 1, currentY);
         const valorValueWidth = pdf.getTextWidth(valorValue);
-        const valorLineWidth = Math.max(valorValueWidth + 2, 28);
+        const valorLineWidth = valorValueWidth + 2;
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + valorLabelWidth + 1, currentY + 1, margin + valorLabelWidth + 1 + valorLineWidth, currentY + 1);
 
-        // Forma de Pagamento (lado direito)
-        pdf.setFontSize(11);
+        // Forma de Pagamento (lado direito) - mais à esquerda para caber textos longos
+        const rightColumnX = pageWidth / 2 - 4; // Mais à esquerda
+        
+        pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         const formaPagLabel = 'Forma de Pagamento: ';
         const formaPagamento = formData.forma_pagamento === 'dinheiro' ? 'Dinheiro' :
@@ -964,24 +968,17 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           formData.forma_pagamento === 'pix' ? 'PIX' : 'Outro';
         const formaPagLabelWidth = pdf.getTextWidth(formaPagLabel);
 
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        const formaPagValueWidth = pdf.getTextWidth(formaPagamento);
-        const formaPagLineWidth = Math.max(formaPagValueWidth + 2, 22);
-        const totalFormaPagWidth = formaPagLabelWidth + 1 + formaPagLineWidth;
-        const formaPagX = pageWidth - margin - totalFormaPagWidth;
+        pdf.text(formaPagLabel, rightColumnX, currentY);
 
         pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(formaPagLabel, formaPagX, currentY);
-
-        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(formaPagamento, formaPagX + formaPagLabelWidth + 1, currentY);
+        pdf.text(formaPagamento, rightColumnX + formaPagLabelWidth + 1, currentY);
+        const formaPagValueWidth = pdf.getTextWidth(formaPagamento);
+        const formaPagLineWidth = formaPagValueWidth + 2;
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(formaPagX + formaPagLabelWidth + 1, currentY + 1, formaPagX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
+        pdf.line(rightColumnX + formaPagLabelWidth + 1, currentY + 1, rightColumnX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
 
-        currentY += 10;
+        currentY += 7;
 
         // Parcelas e Status do Pagamento na mesma linha
         const parcelasLabel = 'Parcelas: ';
@@ -991,84 +988,79 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           parcelasValue = formData.credito_parcelas;
         }
 
-        pdf.setFontSize(11);
+        pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         const parcelasLabelWidth = pdf.getTextWidth(parcelasLabel);
 
         pdf.text(parcelasLabel, margin, currentY);
 
-        pdf.setFontSize(12);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
         pdf.text(parcelasValue, margin + parcelasLabelWidth + 1, currentY);
         const parcelasValueWidth = pdf.getTextWidth(parcelasValue);
-        const parcelasLineWidth = Math.max(parcelasValueWidth + 2, 18);
+        const parcelasLineWidth = parcelasValueWidth + 2;
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + parcelasLabelWidth + 1, currentY + 1, margin + parcelasLabelWidth + 1 + parcelasLineWidth, currentY + 1);
 
-        // Status do Pagamento (lado direito)
+        // Status do Pagamento - alinhado com Forma de Pagamento
         const statusPagLabel = 'Status do Pagamento: ';
         const statusPagValue = formData.status_pagamento || 'Pago';
-        const statusPagLabelWidth = pdf.getTextWidth(statusPagLabel);
 
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        const statusPagValueWidth = pdf.getTextWidth(statusPagValue);
-        const statusPagLineWidth = Math.max(statusPagValueWidth + 2, 25);
-        const totalStatusPagWidth = statusPagLabelWidth + 1 + statusPagLineWidth;
-        const statusPagX = pageWidth - margin - totalStatusPagWidth;
-
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(statusPagLabel, statusPagX, currentY);
-
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(statusPagValue, statusPagX + statusPagLabelWidth + 1, currentY);
-        pdf.setDrawColor(156, 163, 175);
-        pdf.line(statusPagX + statusPagLabelWidth + 1, currentY + 1, statusPagX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
-
-        currentY += 12;
-
-        // Descrição do Pedido
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
+        const statusPagLabelWidth = pdf.getTextWidth(statusPagLabel);
+        pdf.text(statusPagLabel, rightColumnX, currentY);
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(statusPagValue, rightColumnX + statusPagLabelWidth + 1, currentY);
+        const statusPagValueWidth = pdf.getTextWidth(statusPagValue);
+        const statusPagLineWidth = statusPagValueWidth + 2;
+        pdf.setDrawColor(156, 163, 175);
+        pdf.line(rightColumnX + statusPagLabelWidth + 1, currentY + 1, rightColumnX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
+
+        currentY += 7; // CORRIGIDO: reduzido de 9 para 7 - subir os campos
+
+        // Descrição do Pedido - SUBINDO a posição
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
         pdf.text('Descrição do Pedido:', margin, currentY);
 
-        currentY += 6;
+        currentY += 3;
 
-        const descLineWidth = pageWidth - 2 * margin;
-        pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin, currentY, margin + descLineWidth, currentY);
+        // Caixa para descrição
+        const boxHeight = 11;
+        const boxWidth = pageWidth - 2 * margin;
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(margin, currentY, boxWidth, boxHeight, 'FD');
 
         if (formData.descricao_pedido) {
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'normal');
-          const descPedido = formData.descricao_pedido.length > 80 ?
-            formData.descricao_pedido.substring(0, 80) + '...' :
-            formData.descricao_pedido;
-          pdf.text(descPedido, margin, currentY - 1);
+          const descLines = pdf.splitTextToSize(formData.descricao_pedido, boxWidth - 4);
+          pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
 
-        currentY += 10;
+        currentY += boxHeight + 3; // CORRIGIDO: reduzido de 4 para 3
 
-        // Observações
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
+        // Observações - SUBINDO a posição
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
         pdf.text('Observações:', margin, currentY);
 
-        currentY += 6;
+        currentY += 3;
 
-        const obsLineWidth = pageWidth - 2 * margin;
-        pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin, currentY, margin + obsLineWidth, currentY);
+        // Caixa para observações
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(margin, currentY, boxWidth, boxHeight, 'FD');
 
         if (formData.observacao_cliente) {
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'normal');
-          const obsCliente = formData.observacao_cliente.length > 80 ?
-            formData.observacao_cliente.substring(0, 80) + '...' :
-            formData.observacao_cliente;
-          pdf.text(obsCliente, margin, currentY - 1);
+          const obsLines = pdf.splitTextToSize(formData.observacao_cliente, boxWidth - 4);
+          pdf.text(obsLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
       }
 
