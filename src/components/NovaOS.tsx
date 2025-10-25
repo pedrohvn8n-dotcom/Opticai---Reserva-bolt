@@ -20,6 +20,7 @@ interface FormData {
   valor_total: string;
   forma_pagamento: string;
   credito_parcelas: string;
+  status_pagamento: string;
   esf_od: string;
   cil_od: string;
   eixo_od: string;
@@ -50,6 +51,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
     valor_total: '',
     forma_pagamento: 'dinheiro',
     credito_parcelas: '',
+    status_pagamento: 'Pago',
     esf_od: '',
     cil_od: '',
     eixo_od: '',
@@ -485,6 +487,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         valor_total: formData.valor_total ? parseFloat(extractCurrencyValue(formData.valor_total)) : null,
         forma_pagamento: formData.forma_pagamento || null,
         credito_parcelas: formData.credito_parcelas ? parseInt(formData.credito_parcelas) : null,
+        status_pagamento: formData.status_pagamento || null,
         esf_od: formData.esf_od || null,
         cil_od: formData.cil_od || null,
         eixo_od: formData.eixo_od || null,
@@ -672,6 +675,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       };
 
       // Datas na mesma linha
+      currentY += 3;
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
 
@@ -685,9 +689,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFont('helvetica', 'bold');
       pdf.text(dataVendaValue, margin + labelWidth + 2, currentY);
       const valueWidth = pdf.getTextWidth(dataVendaValue);
-      const dataVendaLineWidth = valueWidth + 1;
+      const dataVendaLineWidth = dataVendaValue ? valueWidth : 28;
       pdf.setDrawColor(156, 163, 175);
-      pdf.line(margin + labelWidth + 2, currentY + 0.5, margin + labelWidth + 2 + dataVendaLineWidth, currentY + 0.5);
+      pdf.line(margin + labelWidth + 2, currentY + 1, margin + labelWidth + 2 + dataVendaLineWidth, currentY + 1);
 
       // Data de Entrega (lado direito)
       pdf.setFontSize(10);
@@ -699,7 +703,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       const dataEntregaValueWidth = pdf.getTextWidth(dataEntregaValue);
-      const dataEntregaLineWidth = dataEntregaValueWidth + 1;
+      const dataEntregaLineWidth = dataEntregaValue ? dataEntregaValueWidth : 28;
       const totalEntregaWidth = dataEntregaLabelWidth + 2 + dataEntregaLineWidth;
       const dataEntregaX = pageWidth - margin - totalEntregaWidth;
 
@@ -710,9 +714,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY);
-      pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 0.5, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 0.5);
+      pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 1, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 1);
 
-      currentY += 10;
+      currentY += 12;
       
       if (type === 'laboratorio') {
         // Nome e Telefone na mesma linha
@@ -918,12 +922,12 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setFont('helvetica', 'normal');
         pdf.text('Nome:', margin, currentY);
 
-        currentY += 3.5;
+        currentY += 4;
 
         const clienteNome = formData.cliente_nome || '';
-        const nomeStartX = margin + 12; // CORRIGIDO: começar à direita
+        const nomeStartX = margin + 8; // CORRIGIDO: começar ainda mais à direita
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 12);
+        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 8);
         pdf.setDrawColor(156, 163, 175);
         pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
 
@@ -933,7 +937,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(clienteNome, nomeStartX, currentY - 1);
         }
 
-        currentY += 5;
+        currentY += 8;
 
         // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
@@ -975,7 +979,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + formaPagLabelWidth + 1, currentY + 1, rightColumnX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
 
-        currentY += 5;
+        currentY += 7;
 
         // Parcelas e Status do Pagamento na mesma linha
         const parcelasLabel = 'Parcelas: ';
@@ -1016,7 +1020,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(rightColumnX + statusPagLabelWidth + 1, currentY + 1, rightColumnX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
-        currentY += 5; // CORRIGIDO: subir os campos
+        currentY += 7; // CORRIGIDO: reduzido de 9 para 7 - subir os campos
 
         // Descrição do Pedido - SUBINDO a posição
         pdf.setFontSize(9);
@@ -1039,9 +1043,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
 
-        currentY += boxHeight + 4; // CORRIGIDO: manter observações no mesmo lugar
+        currentY += boxHeight + 3; // CORRIGIDO: reduzido de 4 para 3
 
-        // Observações - mantida na posição original
+        // Observações - SUBINDO a posição
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Observações:', margin, currentY);
@@ -1060,7 +1064,6 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(obsLines.slice(0, 2), margin + 2, currentY + 4.5);
         }
       }
-
       // Salvar PDF
       const filename = type === 'laboratorio' 
         ? `OS-${nextNumOS}-Laboratorio.pdf`
@@ -1666,7 +1669,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           {/* Dados Financeiros */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Dados Financeiros</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Valor Total</label>
@@ -1708,6 +1711,28 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
+              )}
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status do Pagamento</label>
+              <select
+                value={formData.status_pagamento}
+                onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Pago">Pago</option>
+                <option value="A pagar na entrega">A pagar na entrega</option>
+                <option value="outro">Outro</option>
+              </select>
+              {formData.status_pagamento === 'outro' && (
+                <input
+                  type="text"
+                  value={formData.status_pagamento === 'outro' ? '' : formData.status_pagamento}
+                  onChange={(e) => handleInputChange('status_pagamento', e.target.value)}
+                  placeholder="Digite o status do pagamento"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                />
               )}
             </div>
           </div>
