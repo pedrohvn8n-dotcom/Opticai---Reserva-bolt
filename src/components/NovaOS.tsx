@@ -716,7 +716,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       pdf.text(dataEntregaValue, dataEntregaX + dataEntregaLabelWidth + 2, currentY);
       pdf.line(dataEntregaX + dataEntregaLabelWidth + 2, currentY + 1, dataEntregaX + dataEntregaLabelWidth + 2 + dataEntregaLineWidth, currentY + 1);
 
-      currentY += 12;
+      currentY += 8;
       
       if (type === 'laboratorio') {
         // Nome e Telefone na mesma linha
@@ -727,16 +727,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         const nomeLabel = 'Nome: ';
         const clienteNome = formData.cliente_nome.length > 25 ? formData.cliente_nome.substring(0, 25) + '...' : formData.cliente_nome;
         const nomeLabelWidth = pdf.getTextWidth(nomeLabel);
-        
+
         pdf.text(nomeLabel, margin, currentY);
-        
+
         // Valor do nome com fonte maior
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY); // Espaço padronizado como no campo Nome
+        pdf.text(clienteNome, margin + nomeLabelWidth + 2, currentY);
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeAreaWidth = (pageWidth - 2 * margin) * 0.60;
-        // Linha apenas no valor
+        const nomeAreaWidth = (pageWidth - 2 * margin) * 0.50;
+        // Linha apenas no valor - reduzida para 50% da largura
         pdf.line(margin + nomeLabelWidth + 2, currentY + 1, margin + nomeLabelWidth + 2 + Math.max(nomeValueWidth, nomeAreaWidth - nomeLabelWidth - 2), currentY + 1);
         
         // Telefone com espaçamento padronizado (ajustado para mesmo padrão)
@@ -939,7 +939,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           pdf.text(clienteNome, margin + nomeLabelWidth + 1, currentY);
         }
 
-        currentY += 6; // REDUZIDO: antes era 8, agora 6 (ganhamos espaço!)
+        currentY += 5;
 
         // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
