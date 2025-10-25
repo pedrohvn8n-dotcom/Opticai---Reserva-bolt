@@ -916,7 +916,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 } else {
         // PDF de Venda - layout clean e profissional
 
-        // Nome
+        // Nome - linha começando mais à direita e indo mais longe
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         pdf.text('Nome:', margin, currentY);
@@ -924,15 +924,16 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         currentY += 4;
 
         const clienteNome = formData.cliente_nome || '';
+        const nomeStartX = margin + 3; // Começar mais à direita
         const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = Math.max(nomeValueWidth + 2, 40);
+        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 3); // Linha mais longa
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(margin, currentY, margin + nomeLineWidth, currentY);
+        pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
 
         if (clienteNome) {
           pdf.setFontSize(11);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(clienteNome, margin, currentY - 1);
+          pdf.text(clienteNome, nomeStartX, currentY - 1);
         }
 
         currentY += 8;
@@ -955,7 +956,9 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + valorLabelWidth + 1, currentY + 1, margin + valorLabelWidth + 1 + valorLineWidth, currentY + 1);
 
-        // Forma de Pagamento (lado direito)
+        // Forma de Pagamento (lado direito) - agora alinhado com Status
+        const rightColumnX = pageWidth / 2 + 8; // Ponto fixo de início para ambos
+        
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         const formaPagLabel = 'Forma de Pagamento: ';
@@ -965,22 +968,15 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           formData.forma_pagamento === 'pix' ? 'PIX' : 'Outro';
         const formaPagLabelWidth = pdf.getTextWidth(formaPagLabel);
 
+        pdf.text(formaPagLabel, rightColumnX, currentY);
+
         pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
+        pdf.text(formaPagamento, rightColumnX + formaPagLabelWidth + 1, currentY);
         const formaPagValueWidth = pdf.getTextWidth(formaPagamento);
         const formaPagLineWidth = formaPagValueWidth + 2;
-        const totalFormaPagWidth = formaPagLabelWidth + 1 + formaPagLineWidth;
-        const formaPagX = pageWidth - margin - totalFormaPagWidth;
-
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(formaPagLabel, formaPagX, currentY);
-
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(formaPagamento, formaPagX + formaPagLabelWidth + 1, currentY);
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(formaPagX + formaPagLabelWidth + 1, currentY + 1, formaPagX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
+        pdf.line(rightColumnX + formaPagLabelWidth + 1, currentY + 1, rightColumnX + formaPagLabelWidth + 1 + formaPagLineWidth, currentY + 1);
 
         currentY += 7;
 
@@ -1006,70 +1002,65 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         pdf.setDrawColor(156, 163, 175);
         pdf.line(margin + parcelasLabelWidth + 1, currentY + 1, margin + parcelasLabelWidth + 1 + parcelasLineWidth, currentY + 1);
 
-        // Status do Pagamento (lado direito) - DESTAQUE
+        // Status do Pagamento - alinhado com Forma de Pagamento, fonte igual
         const statusPagLabel = 'Status do Pagamento: ';
         const statusPagValue = formData.status_pagamento || 'Pago';
-        const statusPagLabelWidth = pdf.getTextWidth(statusPagLabel);
-
-        pdf.setFontSize(13);
-        pdf.setFont('helvetica', 'bold');
-        const statusPagValueWidth = pdf.getTextWidth(statusPagValue);
-        const statusPagLineWidth = statusPagValueWidth + 2;
-        const totalStatusPagWidth = statusPagLabelWidth + 1 + statusPagLineWidth;
-        const statusPagX = pageWidth - margin - totalStatusPagWidth;
 
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(statusPagLabel, statusPagX, currentY);
+        const statusPagLabelWidth = pdf.getTextWidth(statusPagLabel);
+        pdf.text(statusPagLabel, rightColumnX, currentY);
 
-        pdf.setFontSize(13);
+        pdf.setFontSize(10); // Mesma fonte que o label
         pdf.setFont('helvetica', 'bold');
-        pdf.text(statusPagValue, statusPagX + statusPagLabelWidth + 1, currentY);
+        pdf.text(statusPagValue, rightColumnX + statusPagLabelWidth + 1, currentY); // Sem espaço extra
+        const statusPagValueWidth = pdf.getTextWidth(statusPagValue);
+        const statusPagLineWidth = statusPagValueWidth + 2;
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(statusPagX + statusPagLabelWidth + 1, currentY + 1, statusPagX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
+        pdf.line(rightColumnX + statusPagLabelWidth + 1, currentY + 1, rightColumnX + statusPagLabelWidth + 1 + statusPagLineWidth, currentY + 1);
 
-        currentY += 10;
+        currentY += 9;
 
-        // Descrição do Pedido - com caixa e quebra de linha
+        // Descrição do Pedido - caixa menor com fonte maior e texto mais centralizado
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Descrição do Pedido:', margin, currentY);
 
         currentY += 3;
 
-        // Caixa para descrição
-        const boxHeight = 14;
+        // Caixa para descrição - reduzida
+        const boxHeight = 11;
         const boxWidth = pageWidth - 2 * margin;
         pdf.setDrawColor(200, 200, 200);
         pdf.setFillColor(250, 250, 250);
         pdf.rect(margin, currentY, boxWidth, boxHeight, 'FD');
 
         if (formData.descricao_pedido) {
-          pdf.setFontSize(9);
+          pdf.setFontSize(10); // Fonte maior
           pdf.setFont('helvetica', 'normal');
           const descLines = pdf.splitTextToSize(formData.descricao_pedido, boxWidth - 4);
-          pdf.text(descLines.slice(0, 3), margin + 2, currentY + 3.5);
+          pdf.text(descLines.slice(0, 2), margin + 2, currentY + 4.5); // Mais centralizado verticalmente
         }
 
-        currentY += boxHeight + 4;
+        currentY += boxHeight + 3;
 
-        // Observações - com caixa e quebra de linha
+        // Observações - caixa menor com fonte maior e texto mais centralizado
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Observações:', margin, currentY);
 
         currentY += 3;
 
-        // Caixa para observações
+        // Caixa para observações - reduzida
         pdf.setDrawColor(200, 200, 200);
         pdf.setFillColor(250, 250, 250);
         pdf.rect(margin, currentY, boxWidth, boxHeight, 'FD');
 
         if (formData.observacao_cliente) {
-          pdf.setFontSize(9);
+          pdf.setFontSize(10); // Fonte maior
           pdf.setFont('helvetica', 'normal');
           const obsLines = pdf.splitTextToSize(formData.observacao_cliente, boxWidth - 4);
-          pdf.text(obsLines.slice(0, 3), margin + 2, currentY + 3.5);
+          pdf.text(obsLines.slice(0, 2), margin + 2, currentY + 4.5); // Mais centralizado verticalmente
         }
       }
       // Salvar PDF
