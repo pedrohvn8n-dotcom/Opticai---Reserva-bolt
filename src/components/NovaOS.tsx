@@ -675,6 +675,7 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
       };
 
       // Datas na mesma linha
+      currentY += 3;
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
 
