@@ -917,27 +917,29 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
 } else {
         // PDF de Venda - layout clean e profissional
 
-        // Nome - linha começando mais à direita ainda
+        // Nome - agora com linha EMBAIXO como os outros campos
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
-        pdf.text('Nome:', margin, currentY);
-
-        currentY += 4;
-
+        
+        const nomeLabel = 'Nome: ';
+        const nomeLabelWidth = pdf.getTextWidth(nomeLabel);
+        pdf.text(nomeLabel, margin, currentY);
+        
         const clienteNome = formData.cliente_nome || '';
-        const nomeStartX = margin + 8; // CORRIGIDO: começar ainda mais à direita
-        const nomeValueWidth = pdf.getTextWidth(clienteNome);
-        const nomeLineWidth = Math.max(nomeValueWidth + 2, pageWidth - 2 * margin - 8);
+        const nomeLineWidth = pageWidth - 2 * margin - nomeLabelWidth - 2;
+        
+        // Desenhar a linha embaixo
         pdf.setDrawColor(156, 163, 175);
-        pdf.line(nomeStartX, currentY, nomeStartX + nomeLineWidth, currentY);
-
+        pdf.line(margin + nomeLabelWidth + 1, currentY + 1, margin + nomeLabelWidth + 1 + nomeLineWidth, currentY + 1);
+        
+        // Texto do nome (se houver)
         if (clienteNome) {
           pdf.setFontSize(11);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(clienteNome, nomeStartX, currentY - 1);
+          pdf.text(clienteNome, margin + nomeLabelWidth + 1, currentY);
         }
 
-        currentY += 8;
+        currentY += 6; // REDUZIDO: antes era 8, agora 6 (ganhamos espaço!)
 
         // Valor Total e Forma de Pagamento na mesma linha
         pdf.setFontSize(10);
