@@ -1742,13 +1742,18 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
           {/* Observações Finais */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Observações Finais</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Descrição do Pedido</label>
                 <textarea
                   value={formData.descricao_pedido}
                   onChange={(e) => handleInputChange('descricao_pedido', e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Detalhes específicos do pedido"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24"
                 />
@@ -1759,6 +1764,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <textarea
                   value={formData.observacao_cliente}
                   onChange={(e) => handleInputChange('observacao_cliente', e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Observações sobre a venda"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24"
                 />
