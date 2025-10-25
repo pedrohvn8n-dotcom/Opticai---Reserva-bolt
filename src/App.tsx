@@ -24,7 +24,7 @@ function App() {
   const { user, profile, tenant, loading, error } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'home' | 'nova-os'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'nova-os' | 'gerenciar-os'>('home');
   const [isVisible, setIsVisible] = useState({
     hero: true,
     problema: true,
@@ -100,23 +100,40 @@ function App() {
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           </div>
         }>
-          <NovaOS 
-            tenant={tenant} 
-            onBack={() => setCurrentPage('home')} 
+          <NovaOS
+            tenant={tenant}
+            onBack={() => setCurrentPage('home')}
+          />
+        </React.Suspense>
+      );
+    }
+
+    if (currentPage === 'gerenciar-os') {
+      const GerenciarOS = React.lazy(() => import('./components/GerenciarOS'));
+      return (
+        <React.Suspense fallback={
+          <div className="min-h-screen bg-white flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          </div>
+        }>
+          <GerenciarOS
+            tenant={tenant}
+            onBack={() => setCurrentPage('home')}
           />
         </React.Suspense>
       );
     }
 
     return (
-      <Home 
-        tenant={tenant} 
+      <Home
+        tenant={tenant}
         onLogout={() => {
           console.log('🔄 Callback de logout chamado, recarregando página...');
           // Forçar recarga completa da página para limpar todo o estado
           window.location.reload();
         }}
         onNavigateToNovaOS={() => setCurrentPage('nova-os')}
+        onNavigateToGerenciarOS={() => setCurrentPage('gerenciar-os')}
       />
     );
   }

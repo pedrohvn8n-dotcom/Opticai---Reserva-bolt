@@ -7,6 +7,8 @@ import autoTable from 'jspdf-autotable';
 interface NovaOSProps {
   tenant: Tenant;
   onBack: () => void;
+  editMode?: boolean;
+  ordemData?: any;
 }
 
 interface FormData {
@@ -39,38 +41,60 @@ interface FormData {
   altura_oe: string;
 }
 
-export default function NovaOS({ tenant, onBack }: NovaOSProps) {
+export default function NovaOS({ tenant, onBack, editMode = false, ordemData }: NovaOSProps) {
+  const formatPhoneForDisplay = (phone: string): string => {
+    if (!phone) return '';
+    const numbers = phone.replace(/\D/g, '');
+    if (numbers.length <= 2) {
+      return `(${numbers}`;
+    } else if (numbers.length <= 3) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    } else if (numbers.length <= 7) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 3)} ${numbers.slice(3)}`;
+    } else {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 3)} ${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+    }
+  };
+
+  const formatCurrencyForDisplay = (value: number | null): string => {
+    if (!value) return '';
+    return value.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   const [formData, setFormData] = useState<FormData>({
-    cliente_nome: '',
-    telefone_cliente: '',
-    cpf: '',
-    endereco: '',
-    data_nascimento: '',
-    data_venda: new Date().toISOString().split('T')[0],
-    data_entrega: '',
-    valor_total: '',
-    forma_pagamento: 'dinheiro',
-    credito_parcelas: '',
-    status_pagamento: 'Pago',
-    esf_od: '',
-    cil_od: '',
-    eixo_od: '',
-    esf_oe: '',
-    cil_oe: '',
-    eixo_oe: '',
-    adicao: '1.00',
-    tipo_lente: 'Visão Simples',
-    descricao_lente: '',
-    observacao: '',
-    descricao_pedido: '',
-    observacao_cliente: '',
-    dnp_od: '',
-    dnp_oe: '',
-    altura_od: '',
-    altura_oe: '',
+    cliente_nome: editMode && ordemData ? ordemData.cliente_nome : '',
+    telefone_cliente: editMode && ordemData ? formatPhoneForDisplay(ordemData.telefone_cliente) : '',
+    cpf: editMode && ordemData ? ordemData.cpf || '' : '',
+    endereco: editMode && ordemData ? ordemData.endereco || '' : '',
+    data_nascimento: editMode && ordemData ? ordemData.data_nascimento || '' : '',
+    data_venda: editMode && ordemData ? ordemData.data_venda : new Date().toISOString().split('T')[0],
+    data_entrega: editMode && ordemData ? ordemData.data_entrega || '' : '',
+    valor_total: editMode && ordemData ? formatCurrencyForDisplay(ordemData.valor_total) : '',
+    forma_pagamento: editMode && ordemData ? ordemData.forma_pagamento || 'dinheiro' : 'dinheiro',
+    credito_parcelas: editMode && ordemData ? (ordemData.credito_parcelas?.toString() || '') : '',
+    status_pagamento: editMode && ordemData ? ordemData.status_pagamento || 'Pago' : 'Pago',
+    esf_od: editMode && ordemData ? ordemData.esf_od || '' : '',
+    cil_od: editMode && ordemData ? ordemData.cil_od || '' : '',
+    eixo_od: editMode && ordemData ? ordemData.eixo_od || '' : '',
+    esf_oe: editMode && ordemData ? ordemData.esf_oe || '' : '',
+    cil_oe: editMode && ordemData ? ordemData.cil_oe || '' : '',
+    eixo_oe: editMode && ordemData ? ordemData.eixo_oe || '' : '',
+    adicao: editMode && ordemData ? ordemData.adicao || '1.00' : '1.00',
+    tipo_lente: editMode && ordemData ? ordemData.tipo_lente : 'Visão Simples',
+    descricao_lente: editMode && ordemData ? ordemData.descricao_lente || '' : '',
+    observacao: editMode && ordemData ? ordemData.observacao || '' : '',
+    descricao_pedido: editMode && ordemData ? ordemData.descricao_pedido || '' : '',
+    observacao_cliente: editMode && ordemData ? ordemData.observacao_cliente || '' : '',
+    dnp_od: editMode && ordemData ? ordemData.dnp_od || '' : '',
+    dnp_oe: editMode && ordemData ? ordemData.dnp_oe || '' : '',
+    altura_od: editMode && ordemData ? ordemData.altura_od || '' : '',
+    altura_oe: editMode && ordemData ? ordemData.altura_oe || '' : '',
   });
 
-  const [nextNumOS, setNextNumOS] = useState<number>(1);
+  const [nextNumOS, setNextNumOS] = useState<number>(editMode && ordemData ? ordemData.num_os : 1);
   const [isLoading, setIsLoading] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
@@ -460,25 +484,25 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
   const handleSave = async () => {
     // Usar validação completa na hora de salvar
     const completeErrors = getCompleteValidationErrors();
-    
+
     if (completeErrors.length > 0) {
       alert(`Por favor, corrija os seguintes erros antes de salvar:\n\n${completeErrors.join('\n')}`);
       // Marcar todos os campos como tocados para mostrar os erros
       setTouchedFields(new Set(['cliente_nome', 'telefone_cliente', 'tipo_lente', 'data_entrega']));
       return;
     }
-    
+
     setIsSaving(true);
 
     try {
       // Extrair apenas os números do telefone para salvar no banco
       const phoneNumbers = extractPhoneNumbers(formData.telefone_cliente);
-      
+
       const orderData = {
         tenant_id: tenant.id,
         num_os: nextNumOS,
         cliente_nome: formData.cliente_nome,
-        telefone_cliente: phoneNumbers, // Salvar apenas os números
+        telefone_cliente: phoneNumbers,
         cpf: formData.cpf || null,
         endereco: formData.endereco || null,
         data_nascimento: formData.data_nascimento || null,
@@ -506,17 +530,33 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
         altura_oe: formData.altura_oe || null,
       };
 
-      const { data, error } = await supabase
-        .from('ordens')
-        .insert([orderData])
-        .select()
-        .single();
+      if (editMode && ordemData) {
+        const { data, error } = await supabase
+          .from('ordens')
+          .update(orderData)
+          .eq('id', ordemData.id)
+          .select()
+          .single();
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        alert(`OS #${data.num_os} atualizada com sucesso!`);
+      } else {
+        const { data, error } = await supabase
+          .from('ordens')
+          .insert([orderData])
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        alert(`OS #${data.num_os} salva com sucesso!`);
       }
 
-      alert(`OS #${data.num_os} salva com sucesso!`);
       onBack();
     } catch (error: any) {
       console.error('Erro ao salvar OS:', error);
@@ -1092,9 +1132,11 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
                 <ArrowLeft className="w-5 h-5" />
                 <span>Voltar</span>
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">Nova Ordem de Serviço</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {editMode ? `Editar OS #${nextNumOS}` : 'Nova Ordem de Serviço'}
+              </h1>
             </div>
-            
+
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -1103,12 +1145,12 @@ export default function NovaOS({ tenant, onBack }: NovaOSProps) {
               {isSaving ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Salvando...</span>
+                  <span>{editMode ? 'Atualizando...' : 'Salvando...'}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Salvar OS</span>
+                  <span>{editMode ? 'Atualizar OS' : 'Salvar OS'}</span>
                 </>
               )}
             </button>

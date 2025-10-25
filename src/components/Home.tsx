@@ -6,9 +6,10 @@ interface HomeProps {
   tenant: Tenant;
   onLogout: () => void;
   onNavigateToNovaOS: () => void;
+  onNavigateToGerenciarOS: () => void;
 }
 
-export default function Home({ tenant, onLogout, onNavigateToNovaOS }: HomeProps) {
+export default function Home({ tenant, onLogout, onNavigateToNovaOS, onNavigateToGerenciarOS }: HomeProps) {
   const [showLogoutModal, setShowLogoutModal] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
@@ -143,7 +144,10 @@ export default function Home({ tenant, onLogout, onNavigateToNovaOS }: HomeProps
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+          <div
+            onClick={onNavigateToGerenciarOS}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+          >
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-green-100 rounded-lg">
                 <ClipboardList className="w-6 h-6 text-green-600" />
@@ -155,7 +159,10 @@ export default function Home({ tenant, onLogout, onNavigateToNovaOS }: HomeProps
                     <p className="text-sm text-gray-600">Gerenciar OS</p>
                   </div>
                   <button
-                    onClick={onNavigateToNovaOS}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNavigateToNovaOS();
+                    }}
                     className="flex items-center space-x-1 bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                   >
                     <Plus className="w-4 h-4" />
